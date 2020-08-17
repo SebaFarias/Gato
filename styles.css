@@ -1,0 +1,124 @@
+:root{
+    --cell-size: 100px;
+    --primary-color: black;
+    --transparent-primary-color: gray;
+    --background-color: white;
+}
+*,::before,::after{
+    box-sizing: border-box;  
+}
+body{
+    margin: 0;  
+}
+.tablero{
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    justify-content: center;
+    align-content: center;
+    grid-template-columns: repeat(3,auto);
+}
+.celda:nth-child(3n + 1){
+    border-left: none;
+}
+.celda:nth-child(3n){
+    border-right: none;
+}
+.celda:nth-child(1),
+.celda:nth-child(2),
+.celda:nth-child(3){
+    border-top: none;
+}
+.celda:nth-child(7),
+.celda:nth-child(8),
+.celda:nth-child(9){
+    border-bottom: none;
+}
+.celda{
+    position: relative;
+    width: var(--cell-size);
+    height: var(--cell-size);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--primary-color);
+    background-color: var(--background-color);
+    cursor: pointer;
+}
+.celda.x,.celda.o{
+    cursor: not-allowed;
+}
+
+.tablero.x .celda:not(.x):not(.o):hover::before,
+.tablero.x .celda:not(.x):not(.o):hover::after,
+.tablero.o .celda:not(.x):not(.o):hover::before{
+    background-color: var(--transparent-primary-color) !important;
+}
+
+.celda.x::before,
+.celda.x::after,
+.tablero.x .celda:not(.x):not(.o):hover::before,
+.tablero.x .celda:not(.x):not(.o):hover::after{
+    content: '';
+    position: absolute;
+    width: calc(var(--cell-size)*0.13);
+    height: calc(var(--cell-size)*0.9); 
+    background-color: var(--primary-color);
+}
+.celda.x::before,
+.tablero.x .celda:not(.x):not(.o):hover::before{
+    transform: rotate(45deg);   
+}
+.celda.x::after,
+.tablero.x .celda:not(.x):not(.o):hover::after{
+    transform: rotate(-45deg);   
+}
+.celda.o::before,
+.celda.o::after,
+.tablero.o .celda:not(.x):not(.o):hover::before,
+.tablero.o .celda:not(.x):not(.o):hover::after{
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+}
+.celda.o::before,
+.tablero.o .celda:not(.x):not(.o):hover::before{
+    width: calc(var(--cell-size)*0.85);
+    height: calc(var(--cell-size)*0.85); 
+    background-color: var(--primary-color);
+}
+.celda.o::after,
+.tablero.o .celda:not(.x):not(.o):hover::after{
+    width: calc(var(--cell-size)*0.6);
+    height: calc(var(--cell-size)*0.6); 
+    background-color: var(--background-color);
+}
+.mensaje-final{
+    position: absolute;
+    z-index: 10;
+    top: -100%;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+}
+.mensaje-final.show{
+    transform: translate(0,100%);
+}
+.restart-btn{
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    cursor: pointer;
+    width: fit-content;
+}
+.mensaje-final h1{
+    font-family: 'Poppins', sans-serif;
+    font-size: 2rem;
+    color: white;
+}
+
