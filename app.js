@@ -13,7 +13,7 @@ winningCombinations = [
     [0,4,8],
     [2,4,6]
 ]
-let isHumanVsBot = true,
+let isHumanVsBot = false,
 matchStarted = false,
 botMark = 'o'
 
