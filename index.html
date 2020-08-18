@@ -5,23 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
-    <title>Gato</title>
+    <title>Seba's Gato</title>
 </head>
 <body>
-    <div class="mensaje-final">
+    <div class="nav">
+        <div class="local-2P option">
+            <div class="2P">2P - Local</div>
+            <div class="indicator selected"></div>
+        </div>
+        <div class="local-bot option">
+            <div class="2P">P1 VS Bot</div>
+            <div class="indicator"></div>
+        </div>
+    </div>
+    <div class="board x">
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+        <div class="cell"></div>
+    </div>
+    <div id='choose-mark'>
+        <h1>Escoge tu marca:</h1>
+        <h2>( las X comienzan )</h2>
+        <div class="marks">
+            <div class="bot-start-btn x"></div>
+            <div class="bot-start-btn o"></div>
+        </div>
+    </div>
+    <div class="final-message">
         <h1></h1>
         <button class="restart-btn">Restart</button>
-    </div>
-    <div class="tablero x">
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
-        <div class="celda"></div>
     </div>
     <script src="./app.js" ></script>
 </body>

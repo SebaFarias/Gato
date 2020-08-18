@@ -1,8 +1,9 @@
-const tablero = document.querySelector('.tablero'),
-celdas = tablero.querySelectorAll('.celda'),
-panel = document.querySelector('.mensaje-final'),
-restartBtn = document.querySelector('.restart-btn'),
-combinacionesGanadoras = [
+const board = document.querySelector('.board'),
+cells = board.querySelectorAll('.cell'),
+modeOptions = document.querySelectorAll('.option'),
+botMenu = document.querySelector('#choose-mark'),
+finalMessage = document.querySelector('.final-message'),
+winningCombinations = [
     [0,1,2],
     [3,4,5],
     [6,7,8],
@@ -12,76 +13,129 @@ combinacionesGanadoras = [
     [0,4,8],
     [2,4,6]
 ]
+let isHumanVsBot = true,
+matchStarted = false,
+botMark = 'o'
 
-celdas.forEach( celda => {
-    celda.addEventListener('click' , (e) => {makeMove(e.target)})
-})
-restartBtn.addEventListener('click', (e) => {restart()})
+cells.forEach( cell => { cell.addEventListener('click' , (e) => {makeMove(e.target)})})
+modeOptions.forEach( option => {option.addEventListener('click', (e) => {changeGameMode(e)})})
+botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
+finalMessage.addEventListener('click', (e) => {restart(e)})
 
-const isFree = (celda) =>{
-    if(celda.classList.contains('x') || celda.classList.contains('o')) return false
-    return true
-}
-
-const makeMove = (celda) => {
-    if(isFree(celda)){
-        if(tablero.classList.contains('x')){
-            celda.classList.add('x')
+const makeMove = (cell) => {
+    if(cell!== false && isFree(cell)){
+        if(board.classList.contains('x')){
+            cell.classList.add('x')
         }else{
-            celda.classList.add('o')
+            cell.classList.add('o')
         }
+        matchStarted = true
         switchTurns()
     }
     let winner = checkWin()
-    if(winner !== false)won(winner);
+    if(winner !== false){won(winner);}
     else if(isFinnished())draw()
+    if(!isFinnished())botMove()
+}
+const isBotsTurn = () => {
+    if(isHumanVsBot && board.classList.contains(botMark))return true
+    return false
+}
+const botMove = () => {
+    if(isHumanVsBot && isBotsTurn()){
+        makeMove(minimax(true))
+    }
+}
+const minimax = (maximizer) => {
+    let chosenCell = false
+    cells.forEach(cell => {
+        if(isFree(cell))chosenCell = cell
+    })
+    return chosenCell
+}
+const handleBotMenu = (event) => {
+    let clicked = event.target 
+    if(clicked.classList.contains('bot-start-btn'))newBotGame(clicked)
+    else botMenu.classList.remove('show')
+}
+const isFree = (cell) =>{
+    if(cell.classList.contains('x') || cell.classList.contains('o')) return false
+    return true
+}
+const changeGameMode = (event) => {
+    const selectedOption = event.target.parentElement
+    if(selectedOption.classList.contains('local-2P'))showFinalMessage('¿Comenzar nueva Partida?')
+    if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
+}
+const newBotGame = (playerMark) => {
+    botMark = playerMark.classList.contains('x')? 'o' : 'x'
+    matchStarted = true
+    isHumanVsBot = true
+    cleanBoard()
+    resetTurns()
+    botMove()
+    showSelectedMode('.local-bot')
+    botMenu.classList.remove('show')
 }
 const checkWin = () => {
-    if(combinacionesGanadoras.some(combinacion => {
+    if(winningCombinations.some(combinacion => {
         return combinacion.every(element => {
-            return celdas[element].classList.contains('x')
+            return cells[element].classList.contains('x')
         })
     }))return 'X'
-    if(combinacionesGanadoras.some(combinacion => {
+    if(winningCombinations.some(combinacion => {
         return combinacion.every(element => {
-            return celdas[element].classList.contains('o')
+            return cells[element].classList.contains('o')
         })
     }))return 'O'
     return false
 }
 const isFinnished = () => {
+    if(checkWin() !== false)return true
     let finnished = true
-    celdas.forEach(celda => {
-        if(isFree(celda))finnished = false
+    cells.forEach(cell => {
+        if(isFree(cell))finnished = false
     })
     return finnished
 }
 const switchTurns = () => {
-    tablero.classList.toggle('x')
-    tablero.classList.toggle('o')
+    board.classList.toggle('x')
+    board.classList.toggle('o')
 }
 const won = (winner) => {
-    mostrarMensajeFinal(`${winner} ha ganado !`)
+    showFinalMessage(`${winner} ha ganado !`)
 }
 const draw = () => {
-    mostrarMensajeFinal('Es un empate!')
+    showFinalMessage('Es un empate!')
 }
-const restart = () => {
-    limpiarTablero()
-    reiniciarTurnos()
-    panel.classList.remove('show')
+const restart = (e) => {
+    if(e.target.classList.contains('restart-btn')){
+        cleanBoard()
+        resetTurns()
+        isHumanVsBot = false
+        matchStarted = false
+       showSelectedMode('.local-2P')
+        finalMessage.classList.remove('show')
+    }
+    if(!isFinnished())finalMessage.classList.remove('show')
 }
-const limpiarTablero = () => {
-    celdas.forEach(celda=>{
-        celda.classList.remove('x')
-        celda.classList.remove('o')
+const showSelectedMode = (mode) => {
+    modeOptions.forEach(option => {
+        option.querySelector('.indicator').classList.remove('selected')
+    })
+    document.querySelector(mode).querySelector('.indicator').classList.add('selected')
+}
+const cleanBoard = () => {
+    cells.forEach(cell=>{
+        cell.classList.remove('x')
+        cell.classList.remove('o')
     })
 }
-const reiniciarTurnos = () => {
-    tablero.classList.remove('o')
-    tablero.classList.add('x')
+const resetTurns = () => {
+    board.classList.remove('o')
+    board.classList.add('x')
 }
-const mostrarMensajeFinal = (mensaje) => {
-    panel.querySelector('h1').innerText = mensaje
-    panel.classList.add('show')
+const showFinalMessage = (mensaje) => {
+    finalMessage.querySelector('h1').innerText = mensaje
+    finalMessage.classList.add('show')
 }

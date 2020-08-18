@@ -1,0 +1,25 @@
+{
+  "name": "gato",
+  "version": "1.2.0",
+  "description": "local 2P tic tac toe game",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SebaFarias/Gato.git"
+  },
+  "keywords": [
+    "tic",
+    "tac",
+    "toe",
+    "css"
+  ],
+  "author": "Seba Farias",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SebaFarias/Gato/issues"
+  },
+  "homepage": "https://github.com/SebaFarias/Gato#readme"
+}
