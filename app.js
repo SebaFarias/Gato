@@ -12,8 +12,13 @@ winningCombinations = [
     [2,5,8],
     [0,4,8],
     [2,4,6]
-]
-let isHumanVsBot = false,
+],
+gamemodes = {
+    local2P: 'local-2P',
+    bot: 'local-bot'
+}
+let gameMode = gamemodes.local2P,
+option = 'local-2P'
 matchStarted = false,
 botMark = 'o'
 
@@ -32,71 +37,147 @@ const makeMove = (cell) => {
         matchStarted = true
         switchTurns()
     }
-    let winner = checkWin()
-    if(winner !== false){won(winner);}
-    else if(isFinnished())draw()
-    if(!isFinnished())botMove()
+    let winner = checkWin(cells)
+    if(winner !== false)showFinalMessage(`${winner.toUpperCase()} ha ganado !`)
+    else if(isFinnished(cells))showFinalMessage('Es un empate!')
+    if(!isFinnished(cells))botMove()
 }
 const isBotsTurn = () => {
-    if(isHumanVsBot && board.classList.contains(botMark))return true
+    if(gameMode === gamemodes.bot && board.classList.contains(botMark))return true
     return false
 }
 const botMove = () => {
-    if(isHumanVsBot && isBotsTurn()){
-        makeMove(minimax(true))
+    if(isBotsTurn()){
+        let choosenCell,
+        minDepth =99 ,
+        bestScore = -2
+        cells.forEach( (cell , index) =>{
+            if(isFree(cell)){
+                let eval = easyBot(tryHere(cells,index,true),false,0)                
+                //console.log(`${eval[0]} > ${bestScore} : ${eval[0] > bestScore}`);
+                //console.log(`${eval[0]} === ${bestScore} && ${eval[1]} < ${minDepth} : ${eval[0] === bestScore && eval[1] < minDepth}`);
+                if(eval[0] > bestScore ){
+                    bestScore = eval[0]
+                    choosenCell = cell
+                }else{
+                    if(eval[0] === bestScore && eval[1] < minDepth){
+                        minDepth = eval[1]
+                        choosenCell = cell
+                    }    
+                }
+            }
+        })
+        makeMove(choosenCell)
     }
 }
-const minimax = (maximizer) => {
-    let chosenCell = false
-    cells.forEach(cell => {
-        if(isFree(cell))chosenCell = cell
-    })
-    return chosenCell
+const tryHere = ( _board , i , isBot) => {
+    let simpleBoard = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
+    if(typeof(_board[0]) !== "string" ){
+        _board.forEach( (cell,index) => {
+            if(cell.classList.contains('x')) simpleBoard[index] = 'x'
+            if(cell.classList.contains('o')) simpleBoard[index] = 'o'
+            if(index === i) simpleBoard[index] = isBot? botMark : otherMark(botMark)
+        })
+    }else{
+        simpleBoard = _board
+        simpleBoard[i] = isBot? botMark : otherMark(botMark)
+    }
+    return simpleBoard
+}
+const otherMark = mark => {
+    return mark === 'x' ? 'o' : 'x' 
+}
+const easyBot = (_board,isMaximizer,depht) => {
+    let winner = checkWin(_board)
+    if(isFinnished(_board)){
+        if(winner === false)return [0,depht]
+        return winner === botMark? [1,depht] : [-1,depht]
+    }
+    if(isMaximizer){
+        let bestScore = -2
+        _board.forEach((cell,index) => {
+            if(cell === ' '){
+                let eval = easyBot(tryHere(_board,index,true),false,depht+1)
+                bestScore = Math.max(eval[0],bestScore)
+            }
+        })
+        return [bestScore,Math.max(depht,eval[1])]
+    }else{
+        let bestScore = 2
+        _board.forEach((cell,index) => {
+            if(cell === ' '){
+                let eval = easyBot(tryHere(_board,index,false),true,depht+1)
+                bestScore = Math.min(eval[0],bestScore)
+            }
+        })
+        return [bestScore,Math.max(depht,eval[1])]
+    }
 }
 const handleBotMenu = (event) => {
     let clicked = event.target 
     if(clicked.classList.contains('bot-start-btn'))newBotGame(clicked)
-    else botMenu.classList.remove('show')
+    else if(!isFinnished(cells))botMenu.classList.remove('show')
 }
 const isFree = (cell) =>{
-    if(cell.classList.contains('x') || cell.classList.contains('o')) return false
+    if(typeof(cell) === 'string'){
+        if(cell !== ' ') return false
+    }
+    else{ 
+        if(cell.classList.contains('x') || cell.classList.contains('o')) return false
+    }
     return true
 }
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
-    if(selectedOption.classList.contains('local-2P'))showFinalMessage('¿Comenzar nueva Partida?')
+    if(selectedOption.classList.contains('local-2P')){
+        option = gamemodes.local2P
+        showFinalMessage('¿Comenzar nueva Partida?')
+    }
     if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
 }
 const newBotGame = (playerMark) => {
     botMark = playerMark.classList.contains('x')? 'o' : 'x'
     matchStarted = true
-    isHumanVsBot = true
+    gameMode = gamemodes.bot
+    option = gamemodes.bot
     cleanBoard()
     resetTurns()
     botMove()
     showSelectedMode('.local-bot')
     botMenu.classList.remove('show')
 }
-const checkWin = () => {
-    if(winningCombinations.some(combinacion => {
-        return combinacion.every(element => {
-            return cells[element].classList.contains('x')
-        })
-    }))return 'X'
-    if(winningCombinations.some(combinacion => {
-        return combinacion.every(element => {
-            return cells[element].classList.contains('o')
-        })
-    }))return 'O'
+const checkWin = (cellsToCheck) => {
+    if(typeof(cellsToCheck[0]) === 'string'){
+        if(winningCombinations.some(combination => {
+            return combination.every(element => {
+                return cellsToCheck[element] === 'x'
+            })
+        }))return 'x'
+        if(winningCombinations.some(combination => {
+            return combination.every(element => {
+                return cellsToCheck[element] === 'o'
+            })
+        }))return 'o'
+    }else{
+        if(winningCombinations.some(combinacion => {
+            return combinacion.every(element => {
+                return cellsToCheck[element].classList.contains('x')
+            })
+        }))return 'x'
+        if(winningCombinations.some(combinacion => {
+            return combinacion.every(element => {
+                return cellsToCheck[element].classList.contains('o')
+            })
+        }))return 'o'
+    }
     return false
 }
-const isFinnished = () => {
-    if(checkWin() !== false)return true
-    let finnished = true
-    cells.forEach(cell => {
-        if(isFree(cell))finnished = false
-    })
-    return finnished
+const isFinnished = (cellsToCheck) => {
+    if(checkWin(cellsToCheck) !== false)return true
+    for( i=0 ; i < cellsToCheck.length ; i++){
+        if(isFree(cellsToCheck[i]))return false
+    }
+    return true
 }
 const switchTurns = () => {
     board.classList.toggle('x')
@@ -110,14 +191,20 @@ const draw = () => {
 }
 const restart = (e) => {
     if(e.target.classList.contains('restart-btn')){
-        cleanBoard()
-        resetTurns()
-        isHumanVsBot = false
-        matchStarted = false
-       showSelectedMode('.local-2P')
-        finalMessage.classList.remove('show')
+        if(option === gamemodes.local2P){
+            cleanBoard()
+            resetTurns()
+            gameMode = gamemodes.local2P
+            matchStarted = false
+            showSelectedMode(`.${gamemodes.local2P}`)
+            finalMessage.classList.remove('show')
+        }
+        if(option === gamemodes.bot){
+            newBotGame(botMenu.querySelector(`.${botMark === 'x'? 'o': 'x'}`))
+            finalMessage.classList.remove('show')
+        }
     }
-    if(!isFinnished())finalMessage.classList.remove('show')
+    if(!isFinnished(cells))finalMessage.classList.remove('show')
 }
 const showSelectedMode = (mode) => {
     modeOptions.forEach(option => {

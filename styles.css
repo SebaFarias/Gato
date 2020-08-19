@@ -1,21 +1,19 @@
-:root{
+*,::before,::after{
+    box-sizing: border-box;  
     --cell-size: 100px;
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
     --background-color: #FFEF00;
-}
-
-*,::before,::after{
-    box-sizing: border-box;  
 }
 body{
     margin: 0;  
     background-color: var(--background-color);
 }
 .nav{
-    position: absolute;
+    position: fixed;
     top: 0;
-    width: 100%;
+    width: 100vw;
+    min-width: 300px;
     min-height: 10vh;
     max-height: calc(50vh - 151px);
     font-family: 'Poppins', sans-serif;
@@ -191,6 +189,7 @@ body{
 @media (max-height: 375px){
     .nav{
         left: 0;
+        min-width: 10vw;
         max-width: 25vw;
         min-height: 100vh;
         flex-direction: column;
