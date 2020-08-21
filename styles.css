@@ -117,6 +117,7 @@ body{
 }
 .final-message,
 #choose-mark{
+    font-family: 'Poppins', sans-serif;
     position: absolute;
     z-index: 10;
     top: -100%;
@@ -158,6 +159,7 @@ body{
     background-color: var(--background-color);
     color: var(--primary-color);
     border: 2px solid var(--primary-color);
+    outline: none;
 }
 .bot-start-btn.o:hover::before,
 .bot-start-btn.x:hover::after,
@@ -176,12 +178,10 @@ body{
 }
 .final-message h1,
 #choose-mark h1{
-    font-family: 'Poppins', sans-serif;
     font-size: 2rem;
     color: var(--background-color);
 }
 #choose-mark h2{
-    font-family: 'Poppins', sans-serif;
     text-align: center;
     font-size: 1rem;
     color: var(--background-color);
