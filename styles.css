@@ -1,5 +1,6 @@
 *,::before,::after{
-    box-sizing: border-box;  
+    box-sizing: border-box; 
+    --font:'Poppins', sans-serif;
     --cell-size: 100px;
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
@@ -16,7 +17,7 @@ body{
     min-width: 300px;
     min-height: 10vh;
     max-height: calc(50vh - 151px);
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -59,22 +60,22 @@ body{
 }
 .cell{    
     border: 2px solid var(--primary-color);
-    background-color: var(--background-color);
 }
+.blocked .cell,
 .cell.x,.cell.o{
     cursor: not-allowed;
 }
-.board.x .cell:not(.x):not(.o):hover::before,
-.board.x .cell:not(.x):not(.o):hover::after,
-.board.o .cell:not(.x):not(.o):hover::before{
+.board.x:not(.blocked) .cell:not(.x):not(.o):hover::before,
+.board.x:not(.blocked) .cell:not(.x):not(.o):hover::after,
+.board.o:not(.blocked) .cell:not(.x):not(.o):hover::before{
     background-color: var(--transparent-primary-color) !important;
 }
 .cell.x::before,
 .cell.x::after,
 .bot-start-btn.x:before,
 .bot-start-btn.x:after,
-.board.x .cell:not(.x):not(.o):hover::before,
-.board.x .cell:not(.x):not(.o):hover::after{
+.board.x:not(.blocked) .cell:not(.x):not(.o):hover::before,
+.board.x:not(.blocked) .cell:not(.x):not(.o):hover::after{
     content: '';
     position: absolute;
     width: calc(var(--cell-size)*0.13);
@@ -95,8 +96,8 @@ body{
 .cell.o::after,
 .bot-start-btn.o:before,
 .bot-start-btn.o:after,
-.board.o .cell:not(.x):not(.o):hover::before,
-.board.o .cell:not(.x):not(.o):hover::after{
+.board.o:not(.blocked) .cell:not(.x):not(.o):hover::before,
+.board.o:not(.blocked) .cell:not(.x):not(.o):hover::after{
     content: '';
     position: absolute;
     border-radius: 50%;
@@ -115,9 +116,23 @@ body{
     height: calc(var(--cell-size)*0.6); 
     background-color: var(--background-color);
 }
+.message{
+    font-family: var(--font);
+    color: var(--primary-color);
+    text-align: center;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 100vw;
+    height: calc(50vh - 154px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .final-message,
+.remote-config,
 #choose-mark{
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font);
     position: absolute;
     z-index: 10;
     top: -100%;
@@ -131,6 +146,7 @@ body{
     justify-content: center;
     transition: all 0.5s ease;
 }
+.remote-config.show,
 .final-message.show,
 #choose-mark.show{
     transform: translate(0,100%);
@@ -147,10 +163,10 @@ body{
 .bot-start-btn{
     margin: 1rem;
 }
-
 .restart-btn,
+.btn,
 .bot-start-btn{
-    font-family: 'Poppins', sans-serif;
+    font-family: var(--font);
     font-size: 2rem;
     padding: 1rem;
     cursor: pointer;
@@ -167,6 +183,7 @@ body{
     background-color: var(--background-color);
 }
 .restart-btn:hover,
+.btn:hover,
 .bot-start-btn.o:hover::after,
 .bot-start-btn:hover{
     background-color: var(--primary-color);
@@ -176,8 +193,23 @@ body{
 .marks{
     display: flex;
 }
+.existing-match{
+    display: flex;
+    align-items: center;
+}
+#existing-code{
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 1rem;
+    border-color: var(--background-color);
+    font-size: 1rem;
+    font-family: var(--font);
+    color: var(--background-color);
+    background-color: var(--primary-color);
+}
 .final-message h1,
-#choose-mark h1{
+#choose-mark h1,
+.remote-config div{
     font-size: 2rem;
     color: var(--background-color);
 }
@@ -193,5 +225,9 @@ body{
         max-width: 25vw;
         min-height: 100vh;
         flex-direction: column;
+    }
+    .message{
+        width: calc(50vw - 154px);
+        height: 100vh;
     }
 }

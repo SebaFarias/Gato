@@ -17,6 +17,10 @@
             <div class="2P">P1 VS Bot</div>
             <div class="indicator"></div>
         </div>
+        <div class="remote-2P option">
+            <div class="2P">2P - Remoto</div>
+            <div class="indicator"></div>
+        </div>
     </nav>
     <div class="board x">
         <div class="cell"></div>
@@ -29,6 +33,9 @@
         <div class="cell"></div>
         <div class="cell"></div>
     </div>
+    <div class="message">
+        <h1>Turno de X</h1>
+    </div>
     <div id="choose-mark">
         <h1>Escoge tu marca:</h1>
         <h2>( las X comienzan )</h2>
@@ -37,6 +44,15 @@
             <div class="bot-start-btn o"></div>
         </div>
     </div>
+    <form action="" class="remote-config">
+        <button class="btn new">Crear Partida</button>
+        <div id="generated-code">O</div>
+        <div for="match-code">Partida Existente</div>
+        <div class="existing-match">
+            <input name="match-code" id="existing-code" placeholder="Ingrese Codigo"></input>
+            <button class="btn join">Unirse</button>
+        </div>
+    </form>
     <div class="final-message">
         <h1></h1>
         <button class="restart-btn">Restart</button>

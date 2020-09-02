@@ -10,43 +10,54 @@ const winningCombinations = [
 ]
 const gamemodes = {
     local2P: 'local-2P',
-    bot: 'local-bot'
+    bot: 'local-bot',
+    remote2P: 'remote-2P',
 }
 const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const botMenu = document.querySelector('#choose-mark')
+const remoteMenu = document.querySelector('.remote-config')
+const existingCode = document.querySelector('#existing-code')
 const finalMessage = document.querySelector('.final-message')
+const message = document.querySelector('.message h1')
+const API_URL = 'http://localhost:8080/api'
 
 let gameMode = gamemodes.local2P
 let option = 'local-2P'
 let matchStarted = false
-let botMark = 'o'
+let nonClientMark = 'o'
+let matchCode = ''
 
 cells.forEach( cell => { cell.addEventListener('click' , (e) => {makeMove(e.target)})})
 modeOptions.forEach( option => {option.addEventListener('click', (e) => {changeGameMode(e)})})
 botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
+remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
 finalMessage.addEventListener('click', (e) => {restart(e)})
 
 //*************************     Alteraciones al Tablero     *************************
 const makeMove = (cell) => {
-    if(cell!== false && isFree(cell)){
-        if(board.classList.contains('x')){
-            cell.classList.add('x')
-        } else{
-            cell.classList.add('o')
-        }              
-        matchStarted = true
-        switchTurns()
+    if(!board.classList.contains('blocked')){
+        if(cell!== false && isFree(cell)){
+            if(board.classList.contains('x')){
+                cell.classList.add('x')
+            } else{
+                cell.classList.add('o')
+            }              
+            matchStarted = true
+            switchTurns()
+        }
+        let winner = checkWin(cells)
+        if(winner !== false)showFinalMessage(`${winner.toUpperCase()} ha ganado !`)
+        else if(isFinnished(cells))showFinalMessage('Es un empate!')
+        if(!isFinnished(cells))botMove()
     }
-    let winner = checkWin(cells)
-    if(winner !== false)showFinalMessage(`${winner.toUpperCase()} ha ganado !`)
-    else if(isFinnished(cells))showFinalMessage('Es un empate!')
-    if(!isFinnished(cells))botMove()
 }
 const switchTurns = () => {
     board.classList.toggle('x')
     board.classList.toggle('o')
+    if(gameMode === gamemodes.remote2P ) board.classList.toggle('blocked')
+    setMsg(null)    
 }
 const cleanBoard = () => {
     cells.forEach(cell=>{
@@ -60,8 +71,11 @@ const resetTurns = () => {
 }
 //*************************      Consultas de estados       ************************* 
 const isBotsTurn = () => {
-    if(gameMode === gamemodes.bot && board.classList.contains(botMark))return true
+    if(gameMode === gamemodes.bot && board.classList.contains(nonClientMark))return true
     return false
+}
+const isMyTurn = () => {
+    return board.classList.contains(otherMark(nonClientMark))
 }
 const isFree = (cell) =>{
     if(typeof(cell) === 'string'){
@@ -120,21 +134,23 @@ const restart = (e) => {
             finalMessage.classList.remove('show')
         }
         if(option === gamemodes.bot){
-            newBotGame(botMenu.querySelector(`.${botMark === 'x'? 'o': 'x'}`))
+            newBotGame(botMenu.querySelector(`.${nonClientMark === 'x'? 'o': 'x'}`))
             finalMessage.classList.remove('show')
         }
     }
+    setMsg(null)
     if(!isFinnished(cells))finalMessage.classList.remove('show')
 }
 const newBotGame = (playerMark) => {
-    botMark = playerMark.classList.contains('x')? 'o' : 'x'
-    matchStarted = true
+    nonClientMark = playerMark.classList.contains('x')? 'o' : 'x'
+    matchStarted = false
     gameMode = gamemodes.bot
     option = gamemodes.bot
     cleanBoard()
     resetTurns()
     botMove()
     showSelectedMode('.local-bot')
+    setMsg(null)
     botMenu.classList.remove('show')
 }
 //*************************       Movimientos del Bot        *************************
@@ -151,7 +167,7 @@ const botMove = () => {
                 }
             }
         })
-        makeMove(choosenCell)
+        setTimeout(()=>{makeMove(choosenCell)},400)
     }
 }
 const minimax = (_board,isMaximizer) => {
@@ -160,7 +176,7 @@ const minimax = (_board,isMaximizer) => {
         if(winner === false){
             return 0    
         }
-        return winner === botMark? 1 : -1
+        return winner === nonClientMark? 1 : -1
     }
     if(isMaximizer){
         let bestScore = -2
@@ -188,15 +204,15 @@ const tryHere = ( _board , i , isBot) => {
         _board.forEach( (cell,index) => {
             if(cell.classList.contains('x')) simpleBoard[index] = 'x'
             if(cell.classList.contains('o')) simpleBoard[index] = 'o'
-            if(index === i) simpleBoard[index] = isBot? botMark : otherMark(botMark)
+            if(index === i) simpleBoard[index] = isBot? nonClientMark : otherMark(nonClientMark)
         })
     }else{
         simpleBoard = [..._board]
-        simpleBoard[i] = isBot? botMark : otherMark(botMark)
+        simpleBoard[i] = isBot? nonClientMark : otherMark(nonClientMark)
     }
     return simpleBoard
 }
-//*************************              Menus              *************************
+//*************************         Menus y Vistas           *************************
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
     if(selectedOption.classList.contains('local-2P')){
@@ -204,6 +220,17 @@ const changeGameMode = (event) => {
         showFinalMessage('¿Comenzar nueva Partida?')
     }
     if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
+    if (selectedOption.classList.contains('remote-2P'))remoteMenu.classList.add('show');
+}
+const setMsg = (text) => {
+    if(text === null){ 
+        if(gameMode !== gamemodes.local2P){ 
+            let text = isMyTurn()? 'Tu turno' : 'Turno del rival'
+            message.innerText = text        
+        }
+        else message.innerText = `Turno de ${board.classList.contains('x')? 'X' : 'O'}`
+    }
+    else message.innerText = text
 }
 const showSelectedMode = (mode) => {
     modeOptions.forEach(option => {
@@ -216,6 +243,22 @@ const handleBotMenu = (event) => {
     if(clicked.classList.contains('bot-start-btn'))newBotGame(clicked)
     else if(!isFinnished(cells))botMenu.classList.remove('show')
 }
+const handleRemoteMenu = (event) =>{
+    event.preventDefault()
+    let clicked = event.target
+    if(clicked.classList.contains('new'))createNewMatch()
+    else if(clicked.classList.contains('join'))joinExistingMatch(existingCode.value)
+    else if(clicked.classList.contains('remote-config'))remoteMenu.classList.remove('show')
+}
+const createNewMatch = () => {
+    sendNewMatchReq()
+    console.log('new btn pressed');
+}
+const joinExistingMatch = (code) => {
+    sendJoinReq(code)
+    console.log(`Join btn pressed try: ${code}`);
+} 
+
 const showFinalMessage = (mensaje) => {
     finalMessage.querySelector('h1').innerText = mensaje
     finalMessage.classList.add('show')
@@ -226,3 +269,22 @@ const won = (winner) => {
 const draw = () => {
     showFinalMessage('Es un empate!')
 }
+//*************************          HTTP Requests           *************************
+const sendNewMatchReq = () => {
+    fetch(API_URL+'/newConnection')
+        .then( res => {
+        return res.json();
+    })
+        .then(data => console.log(data))
+}
+const sendJoinReq = (code) => {
+    fetch(API_URL + '/join',{
+        method: 'POST',
+        body: JSON.stringify({
+            code: code
+        }),
+        headers: {
+            'content-type': 'application/json'
+        }        
+    })
+}   

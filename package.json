@@ -21,5 +21,6 @@
   "bugs": {
     "url": "https://github.com/SebaFarias/Gato/issues"
   },
-  "homepage": "https://github.com/SebaFarias/Gato#readme"
+  "homepage": "https://github.com/SebaFarias/Gato#readme",
+  "dependencies": {}
 }
