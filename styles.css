@@ -1,3 +1,17 @@
+/*
+Tabla de Contenidos:
+    - Configuracion General
+    - Opciones de juego
+    - Tablero
+    - Linea de Victoria
+    - Menus
+    - Media Query
+*/
+
+
+/******************************************
+*        Configuracion General
+******************************************/
 *,::before,::after{
     box-sizing: border-box;  
     --cell-size: 100px;
@@ -9,6 +23,9 @@ body{
     margin: 0;  
     background-color: var(--background-color);
 }
+/******************************************
+*        Opciones de Juego 
+******************************************/
 .nav{
     position: fixed;
     top: 0;
@@ -33,6 +50,9 @@ body{
 .selected{
     background-color: var(--background-color);
 }
+/******************************************
+*        Tablero
+******************************************/
 .board{
     width: 100vw;
     height: 100vh;
@@ -115,6 +135,73 @@ body{
     height: calc(var(--cell-size)*0.6); 
     background-color: var(--background-color);
 }
+
+/******************************************
+*        Linea de Victoria
+******************************************/
+.board.line-h::after{
+    content: '';
+    position: absolute;
+    top:calc(50% - calc((var(--cell-size)*0.13/2) +var(--cell-size)*0));
+    left: calc(50% - (calc(var(--cell-size)*3/2)));
+    height: calc(var(--cell-size)*0.13);
+    width: calc(var(--cell-size)*3);
+    transform: scale(0,1);
+    background-color: var(--primary-color);
+    
+}
+.board.show-line::after{
+    transform: scale(1,1) !important;
+}
+.board.line-h.up::after{
+    top: calc(50% - calc((var(--cell-size)*0.13/2) +var(--cell-size)*1));
+    transition: transform 200ms ease-in-out;
+}
+.board.line-h.down::after{
+    top: calc(50% - calc((var(--cell-size)*0.13/2) +var(--cell-size)*-1));
+    transition: transform 200ms ease-in-out;
+}
+.board.line-h.center::after{
+    transition: transform 200ms ease-in-out;
+}
+.board.line-v::after{
+    content: '';
+    position: absolute;
+    left:calc(50% - calc((var(--cell-size)*0.13/2) + var(--cell-size)*0));
+    top: calc(50% - (calc(var(--cell-size)*3/2)));
+    width: calc(var(--cell-size)*0.13);
+    height: calc(var(--cell-size)*3);
+    transform: scale(1,0);
+    background-color: var(--primary-color);
+}
+.board.line-v.center::after{
+    transition: transform 200ms ease-in-out;
+}
+.board.line-v.left::after{
+    left: calc(50% - calc((var(--cell-size)*0.13/2) + var(--cell-size)*1));
+    transition: transform 200ms ease-in-out;
+}
+.board.line-v.rigth::after{
+    left: calc(50% - calc((var(--cell-size)*0.13/2) + var(--cell-size)*-1));
+    transition: transform 200ms ease-in-out;
+}
+.board.line-v.diagonal::after{
+    transform: rotate(-45deg) scale(1,0);
+    transition: transform 200ms ease-in-out;
+}
+.board.line-v.diagonal-inv::after{
+    transform: rotate(45deg) scale(1,0);
+    transition: transform 200ms ease-in-out;
+}
+.diagonal.show-line::after{
+    transform: rotate(-45deg) scale(1,1) !important;
+}
+.diagonal-inv.show-line::after{
+    transform: rotate(45deg) scale(1,1) !important;
+}
+/******************************************
+*        Menus  
+******************************************/
 .final-message,
 #choose-mark{
     font-family: 'Poppins', sans-serif;
@@ -186,6 +273,9 @@ body{
     font-size: 1rem;
     color: var(--background-color);
 }
+/******************************************
+*        Media Query  
+******************************************/
 @media (max-height: 375px){
     .nav{
         left: 0;
