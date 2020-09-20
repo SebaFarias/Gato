@@ -21,7 +21,7 @@ const remoteMenu = document.querySelector('.remote-config')
 const existingCode = document.querySelector('#existing-code')
 const finalMessage = document.querySelector('.final-message')
 const message = document.querySelector('.message h1')
-const API_URL = 'http://localhost:8080/api'
+const API_URL = 'http://localhost:8080/'
 
 let gameMode = gamemodes.local2P
 let option = 'local-2P'
@@ -278,7 +278,7 @@ const sendNewMatchReq = () => {
         .then(data => console.log(data))
 }
 const sendJoinReq = (code) => {
-    fetch(API_URL + '/join',{
+    fetch(API_URL,{
         method: 'POST',
         body: JSON.stringify({
             code: code
