@@ -1,62 +1,52 @@
-const winningCombinations = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8],
-    [0,4,8],
-    [2,4,6]
-]
+
 const gamemodes = {
-    local2P: 'local-2P',
+    local: 'local-2P',
     bot: 'local-bot',
-    remote2P: 'remote-2P',
+    remote: 'remote-2P',
 }
+const game = new Game(gamemodes.local,'local-2P',false,'o','','x')
 const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
-const botMenu = document.querySelector('#choose-mark')
-const remoteMenu = document.querySelector('.remote-config')
-const existingCode = document.querySelector('#existing-code')
-const finalMessage = document.querySelector('.final-message')
 const message = document.querySelector('.message h1')
-const API_URL = 'http://localhost:8080/'
+// const botMenu = document.querySelector('#choose-mark')
+// const remoteMenu = document.querySelector('.remote-config')
+// const existingCode = document.querySelector('#existing-code')
+// const finalMessage = document.querySelector('.final-message')
+// const API_URL = 'http://localhost:8080/'
 
-let gameMode = gamemodes.local2P
-let option = 'local-2P'
-let matchStarted = false
-let nonClientMark = 'o'
-let matchCode = ''
+cells.forEach( cell => { cell.addEventListener('click' , (e) => {boardHandler(e)})})
+modeOptions.forEach( option => {option.addEventListener('click', (e) => {menuHandler(e)})})
+// botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
+// remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
+// finalMessage.addEventListener('click', (e) => {restart(e)})
 
-cells.forEach( cell => { cell.addEventListener('click' , (e) => {makeMove(e.target)})})
-modeOptions.forEach( option => {option.addEventListener('click', (e) => {changeGameMode(e)})})
-botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
-remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
-finalMessage.addEventListener('click', (e) => {restart(e)})
-
+const boardHandler = (event) =>{
+    const clicked = event.target
+    if(clicked.classList.contains('x') || clicked.classList.contains('o')) return
+    if(canIPlay()) makeMove(clicked)
+}
+const menuHandler = (event) =>{
+    
+}
+const canIPlay = () => {
+    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
+    if(game.checkwin() !== false) return false
+    return true
+}
 //*************************     Alteraciones al Tablero     *************************
 const makeMove = (cell) => {
-    if(!board.classList.contains('blocked')){
-        if(cell!== false && isFree(cell)){
-            if(board.classList.contains('x')){
-                cell.classList.add('x')
-            } else{
-                cell.classList.add('o')
-            }              
-            matchStarted = true
-            switchTurns()
-        }
-        let winner = checkWin(cells)
-        if(winner !== false)showFinalMessage(`${winner.toUpperCase()} ha ganado !`)
-        else if(isFinnished(cells))showFinalMessage('Es un empate!')
-        if(!isFinnished(cells))botMove()
-    }
+    board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
+    game.updateBoard(game.turn,getIndex(cell))   
+    switchTurns()
+    const winner = game.checkwin()
+    handleWinner(winner)
+    if(game.gameMode === gamemodes.bot && winner === false) botMove()
 }
 const switchTurns = () => {
     board.classList.toggle('x')
     board.classList.toggle('o')
-    if(gameMode === gamemodes.remote2P ) board.classList.toggle('blocked')
+    game.switchTurns()
     setMsg(null)    
 }
 const cleanBoard = () => {
@@ -70,6 +60,13 @@ const resetTurns = () => {
     board.classList.add('x')
 }
 //*************************      Consultas de estados       ************************* 
+const getIndex = cell => {
+    let index 
+    Array.from(cells).map( (square, i) => {
+        if (square === cell) index = i
+    })
+    return index
+}
 const isBotsTurn = () => {
     if(gameMode === gamemodes.bot && board.classList.contains(nonClientMark))return true
     return false
@@ -86,51 +83,18 @@ const isFree = (cell) =>{
     }
     return true
 }
-const checkWin = (cellsToCheck) => {
-    if(typeof(cellsToCheck[0]) === 'string'){
-        if(winningCombinations.some(combination => {
-            return combination.every(element => {
-                return cellsToCheck[element] === 'x'
-            })
-        }))return 'x'
-        if(winningCombinations.some(combination => {
-            return combination.every(element => {
-                return cellsToCheck[element] === 'o'
-            })
-        }))return 'o'
-    }else{
-        if(winningCombinations.some(combinacion => {
-            return combinacion.every(element => {
-                return cellsToCheck[element].classList.contains('x')
-            })
-        }))return 'x'
-        if(winningCombinations.some(combinacion => {
-            return combinacion.every(element => {
-                return cellsToCheck[element].classList.contains('o')
-            })
-        }))return 'o'
-    }
-    return false
-}
-const isFinnished = (cellsToCheck) => {
-    if(checkWin(cellsToCheck) !== false)return true
-    for( i=0 ; i < cellsToCheck.length ; i++){
-        if(isFree(cellsToCheck[i]))return false
-    }
-    return true
-}
 const otherMark = mark => {
     return mark === 'x' ? 'o' : 'x' 
 }
 //*************************         Modos de Juego           *************************
 const restart = (e) => {
     if(e.target.classList.contains('restart-btn')){
-        if(option === gamemodes.local2P){
+        if(option === gamemodes.local){
             cleanBoard()
             resetTurns()
-            gameMode = gamemodes.local2P
+            gameMode = gamemodes.local
             matchStarted = false
-            showSelectedMode(`.${gamemodes.local2P}`)
+            showSelectedMode(`.${gamemodes.local}`)
             finalMessage.classList.remove('show')
         }
         if(option === gamemodes.bot){
@@ -216,7 +180,7 @@ const tryHere = ( _board , i , isBot) => {
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
     if(selectedOption.classList.contains('local-2P')){
-        option = gamemodes.local2P
+        option = gamemodes.local
         showFinalMessage('¿Comenzar nueva Partida?')
     }
     if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
@@ -224,7 +188,7 @@ const changeGameMode = (event) => {
 }
 const setMsg = (text) => {
     if(text === null){ 
-        if(gameMode !== gamemodes.local2P){ 
+        if(game.gameMode !== gamemodes.local){ 
             let text = isMyTurn()? 'Tu turno' : 'Turno del rival'
             message.innerText = text        
         }
