@@ -1,7 +1,7 @@
 *,::before,::after{
     box-sizing: border-box; 
     --font:'Poppins', sans-serif;
-    --cell-size: 100px;
+    --cell-size: min(20vmin , 30vmax);
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
     --background-color: #FFEF00;
@@ -218,7 +218,7 @@ body{
     font-size: 1rem;
     color: var(--background-color);
 }
-@media (max-height: 375px){
+@media (max-height: 400px){
     .nav{
         left: 0;
         min-width: 10vw;
