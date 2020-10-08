@@ -1,20 +1,41 @@
+/********************************* 
+*       Table of Contents
+*       1- General Config
+*       2- Nav Elements
+*       3- Board and Cells
+*       4- Screen Message
+*       5- Menu
+*       6- Media Query
+*********************************/
+/********************************
+*
+*       1- General Config
+*
+********************************/
 *,::before,::after{
     box-sizing: border-box; 
     --font:'Poppins', sans-serif;
-    --cell-size: min(20vmin , 30vmax);
+    --cell-size: 20vmin;
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
     --background-color: #FFEF00;
 }
 body{
-    margin: 0;  
-    background-color: var(--background-color);
-}
-.nav{
-    position: fixed;
-    top: 0;
+    margin: 0; 
     width: 100vw;
-    min-width: 300px;
+    height: 100vh; 
+    background-color: var(--background-color);
+    display: flex;
+    flex-direction: column;
+}
+/********************************
+*
+*       2- Nav Elements
+*
+********************************/
+nav{
+    margin-bottom: auto;
+    width: 100vw;
     min-height: 10vh;
     max-height: calc(50vh - 151px);
     font-family: var(--font);
@@ -27,6 +48,7 @@ body{
 .option{
     margin: auto;
     padding: 1rem;
+    text-align: center;
 }
 .indicator{
     height: 2px;
@@ -34,9 +56,13 @@ body{
 .selected{
     background-color: var(--background-color);
 }
-.board{
-    width: 100vw;
-    height: 100vh;
+/********************************
+*
+*       3- Board and cells
+*
+********************************/
+.board{ 
+    margin: auto;
     display: grid;
     justify-content: center;
     align-content: center;
@@ -116,19 +142,22 @@ body{
     height: calc(var(--cell-size)*0.6); 
     background-color: var(--background-color);
 }
+/********************************
+*
+*       4- Screen Message
+*
+********************************/
 .message{
     font-family: var(--font);
     color: var(--primary-color);
     text-align: center;
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 100vw;
-    height: calc(50vh - 154px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    margin-bottom: auto;
 }
+/********************************
+*
+*       5- Menu
+*
+********************************/
 .final-message,
 .remote-config,
 #choose-mark{
@@ -218,16 +247,23 @@ body{
     font-size: 1rem;
     color: var(--background-color);
 }
+/********************************
+*
+*       6- Media Query 
+*
+********************************/
 @media (max-height: 400px){
-    .nav{
-        left: 0;
-        min-width: 10vw;
-        max-width: 25vw;
+    body{
+        flex-direction: row;
+    }
+    nav{
+        width: 25vw;
         min-height: 100vh;
         flex-direction: column;
+        margin-bottom: 0;
     }
     .message{
         width: calc(50vw - 154px);
-        height: 100vh;
+        margin-top: auto;
     }
 }

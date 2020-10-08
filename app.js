@@ -1,4 +1,3 @@
-
 const gamemodes = {
     local: 'local-2P',
     bot: 'local-bot',
@@ -29,19 +28,22 @@ const boardHandler = (event) =>{
 const menuHandler = (event) =>{
     
 }
-const canIPlay = () => {
-    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
-    if(game.checkwin() !== false) return false
-    return true
-}
-//*************************     Alteraciones al Tablero     *************************
 const makeMove = (cell) => {
     board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
     game.updateBoard(game.turn,getIndex(cell))   
     switchTurns()
     const winner = game.checkwin()
-    handleWinner(winner)
-    if(game.gameMode === gamemodes.bot && winner === false) botMove()
+    winner === false ? nextTurn() : handleWinner(winner)
+}
+const nextTurn = () => {
+    switch(game.gameMode){
+        case gamemodes.bot:
+            botMove()
+            break
+        case gamemodes.remote:
+            getNewMove()
+            break
+    }
 }
 const switchTurns = () => {
     board.classList.toggle('x')
@@ -49,6 +51,23 @@ const switchTurns = () => {
     game.switchTurns()
     setMsg(null)    
 }
+const getIndex = cell => {
+    let index 
+    Array.from(cells).map( (square, i) => {
+        if (square === cell) index = i
+    })
+    return index
+}
+const canIPlay = () => {
+    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
+    if(game.checkwin() !== false) return false
+    return true
+}
+const getNewMove = () => {
+    // hacer el fetch a la API del próximo movimiento rival
+}
+//*************************     Old stuff     *************************
+//*************************     Alteraciones al Tablero     *************************
 const cleanBoard = () => {
     cells.forEach(cell=>{
         cell.classList.remove('x')
@@ -60,16 +79,8 @@ const resetTurns = () => {
     board.classList.add('x')
 }
 //*************************      Consultas de estados       ************************* 
-const getIndex = cell => {
-    let index 
-    Array.from(cells).map( (square, i) => {
-        if (square === cell) index = i
-    })
-    return index
-}
 const isBotsTurn = () => {
-    if(gameMode === gamemodes.bot && board.classList.contains(nonClientMark))return true
-    return false
+    return game.gameMode === gamemodes.bot && board.classList.contains(game.facingMark)
 }
 const isMyTurn = () => {
     return board.classList.contains(otherMark(nonClientMark))
@@ -177,6 +188,9 @@ const tryHere = ( _board , i , isBot) => {
     return simpleBoard
 }
 //*************************         Menus y Vistas           *************************
+const handleWinner = () => {
+
+}
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
     if(selectedOption.classList.contains('local-2P')){
