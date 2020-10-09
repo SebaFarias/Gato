@@ -15,7 +15,9 @@
 *,::before,::after{
     box-sizing: border-box; 
     --font:'Poppins', sans-serif;
-    --cell-size: 20vmin;
+}
+:root{
+    --cell-size: min(20vh,30vw);
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
     --background-color: #FFEF00;
@@ -62,11 +64,16 @@ nav{
 *
 ********************************/
 .board{ 
+    position: relative;
     margin: auto;
     display: grid;
     justify-content: center;
     align-content: center;
     grid-template-columns: repeat(3,auto);
+}
+/********* Cell borders *********/
+.cell{    
+    border: 2px solid var(--primary-color);
 }
 .cell:nth-child(3n + 1){
     border-left: none;
@@ -84,30 +91,25 @@ nav{
 .cell:nth-child(9){
     border-bottom: none;
 }
-.cell{    
-    border: 2px solid var(--primary-color);
-}
+/********* Cell Marks *********/
 .blocked .cell,
-.cell.x,.cell.o{
+.cell.x,
+.cell.o{
     cursor: not-allowed;
-}
-.board.x:not(.blocked) .cell:not(.x):not(.o):hover::before,
-.board.x:not(.blocked) .cell:not(.x):not(.o):hover::after,
-.board.o:not(.blocked) .cell:not(.x):not(.o):hover::before{
-    background-color: var(--transparent-primary-color) !important;
 }
 .cell.x::before,
 .cell.x::after,
 .bot-start-btn.x:before,
 .bot-start-btn.x:after,
-.board.x:not(.blocked) .cell:not(.x):not(.o):hover::before,
-.board.x:not(.blocked) .cell:not(.x):not(.o):hover::after{
+.board.x .cell:not(.x):not(.o):hover::before,
+.board.x .cell:not(.x):not(.o):hover::after{
     content: '';
     position: absolute;
     width: calc(var(--cell-size)*0.13);
     height: calc(var(--cell-size)*0.9); 
     background-color: var(--primary-color);
 }
+/********* X Marks *********/
 .cell.x::before,
 .bot-start-btn.x:before,
 .board.x .cell:not(.x):not(.o):hover::before{
@@ -118,12 +120,13 @@ nav{
 .board.x .cell:not(.x):not(.o):hover::after{
     transform: rotate(-45deg);   
 }
+/********* O Marks *********/
 .cell.o::before,
 .cell.o::after,
 .bot-start-btn.o:before,
 .bot-start-btn.o:after,
-.board.o:not(.blocked) .cell:not(.x):not(.o):hover::before,
-.board.o:not(.blocked) .cell:not(.x):not(.o):hover::after{
+.board.o .cell:not(.x):not(.o):hover::before,
+.board.o .cell:not(.x):not(.o):hover::after{
     content: '';
     position: absolute;
     border-radius: 50%;
@@ -142,6 +145,75 @@ nav{
     height: calc(var(--cell-size)*0.6); 
     background-color: var(--background-color);
 }
+/********* Posible Marks *********/
+.board.x .cell:not(.x):not(.o):hover::before,
+.board.x .cell:not(.x):not(.o):hover::after,
+.board.o .cell:not(.x):not(.o):hover::before{
+    background-color: var(--transparent-primary-color) !important;
+}
+/********* Winning line *********/
+.board::after{
+    content: '';
+    position: absolute;
+    height: 0;
+    width: 0;
+    background: var(--primary-color);
+}
+.board.v::after{
+    top: 0;
+    width: calc(var(--cell-size)*0.13);
+    transition: height 200ms ease-in-out;
+}
+.board.v.center::after{
+    height: 100%;
+    left: 50%;
+    transform: translate(-50%,0%) 
+}
+.board.v.left::after{
+    height: 100%;
+    left: calc(var(--cell-size)/2);
+    transform: translate(-50%,0%) 
+}
+.board.v.right::after{
+    height: 100%;
+    right: calc(var(--cell-size)/2);
+    transform: translate(50%,0%) 
+}
+.board.h::after{
+    left: 0;
+    height: calc(var(--cell-size)*0.13);
+    transition: width 200ms ease-in-out;
+}
+.board.h.center::after{    
+    width: 100%;
+    top: 50%;
+    transform: translate(0%,-50%) 
+}
+.board.h.up::after{
+    width: 100%;
+    top: calc(var(--cell-size)/2);
+    transform: translate(0%,-50%) 
+}
+.board.h.down::after{
+    width: 100%;
+    bottom: calc(var(--cell-size)/2);
+    transform: translate(0%,50%) 
+}
+.board.h.d-down::after{
+    width: 141.42%;
+    height: calc(var(--cell-size)*0.13);
+    top: 50%;
+    left: -20.5%;
+    transform: translate(0%,-50%) rotate(45deg);
+}
+.board.h.d-up::after{
+    width: 141.42%;
+    height: calc(var(--cell-size)*0.13);
+    top: 50%;
+    left: -20.5%;
+    transform: translate(0%,-50%) rotate(-45deg);
+}
+
 /********************************
 *
 *       4- Screen Message
@@ -265,5 +337,8 @@ nav{
     .message{
         width: calc(50vw - 154px);
         margin-top: auto;
+    }
+    :root{
+        --cell-size: 25vh;
     }
 }

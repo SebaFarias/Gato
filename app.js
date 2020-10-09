@@ -19,7 +19,18 @@ modeOptions.forEach( option => {option.addEventListener('click', (e) => {menuHan
 // botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
 // remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
 // finalMessage.addEventListener('click', (e) => {restart(e)})
-
+/********************************* 
+*       Table of Contents
+*       1- Clicks Handler
+*       2- Utils
+*       3- Board changes
+*       4- Views
+*********************************/
+/********************************
+*
+*       Clicks Handler
+*
+********************************/
 const boardHandler = (event) =>{
     const clicked = event.target
     if(clicked.classList.contains('x') || clicked.classList.contains('o')) return
@@ -28,14 +39,36 @@ const boardHandler = (event) =>{
 const menuHandler = (event) =>{
     
 }
+/********************************
+*
+*       Utils
+*
+********************************/
+const getIndex = cell => {
+    let index 
+    Array.from(cells).map( (square, i) => {
+        if (square === cell) index = i
+    })
+    return index
+}
+const canIPlay = () => {
+    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
+    if(game.checkwin() !== false) return false
+    return true
+}
+/********************************
+*
+*       Board changes
+*
+********************************/
 const makeMove = (cell) => {
     board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
-    game.updateBoard(game.turn,getIndex(cell))   
-    switchTurns()
+    game.updateBoard(game.turn,getIndex(cell))      
     const winner = game.checkwin()
     winner === false ? nextTurn() : handleWinner(winner)
 }
 const nextTurn = () => {
+    switchTurns()
     switch(game.gameMode){
         case gamemodes.bot:
             botMove()
@@ -51,25 +84,37 @@ const switchTurns = () => {
     game.switchTurns()
     setMsg(null)    
 }
-const getIndex = cell => {
-    let index 
-    Array.from(cells).map( (square, i) => {
-        if (square === cell) index = i
-    })
-    return index
-}
-const canIPlay = () => {
-    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
-    if(game.checkwin() !== false) return false
-    return true
-}
 const getNewMove = () => {
     // hacer el fetch a la API del próximo movimiento rival
+}
+const handleWinner = (winner) => {
+    if(winner){
+        setMsg(`${winner.toLocaleUpperCase()} ha Ganado!`)
+        game.getWinningLine(winner).forEach( name => {
+            board.classList.add(name)
+        })
+    }else{
+        setMsg('Es un empate!')
+        }
+}
+/********************************
+*
+*       Views
+*
+********************************/
+const setMsg = (text) => {
+    let msg = text
+    if(msg === null){ 
+        msg = game.gameMode === gamemodes.local ? 
+            `Turno de ${game.turn.toLocaleUpperCase()}` 
+            : isMyTurn()? 'Tu turno' : 'Turno del rival'     
+    }
+    message.innerText = msg
 }
 //*************************     Old stuff     *************************
 //*************************     Alteraciones al Tablero     *************************
 const cleanBoard = () => {
-    cells.forEach(cell=>{
+    cells.forEach( cell => {
         cell.classList.remove('x')
         cell.classList.remove('o')
     })
@@ -188,9 +233,7 @@ const tryHere = ( _board , i , isBot) => {
     return simpleBoard
 }
 //*************************         Menus y Vistas           *************************
-const handleWinner = () => {
 
-}
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
     if(selectedOption.classList.contains('local-2P')){
@@ -200,16 +243,7 @@ const changeGameMode = (event) => {
     if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
     if (selectedOption.classList.contains('remote-2P'))remoteMenu.classList.add('show');
 }
-const setMsg = (text) => {
-    if(text === null){ 
-        if(game.gameMode !== gamemodes.local){ 
-            let text = isMyTurn()? 'Tu turno' : 'Turno del rival'
-            message.innerText = text        
-        }
-        else message.innerText = `Turno de ${board.classList.contains('x')? 'X' : 'O'}`
-    }
-    else message.innerText = text
-}
+
 const showSelectedMode = (mode) => {
     modeOptions.forEach(option => {
         option.querySelector('.indicator').classList.remove('selected')

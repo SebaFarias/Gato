@@ -81,6 +81,36 @@ class Game{
         }
             return false
     }
+    getWinningLine(winnerMark){
+        let winningCombination
+        this.winningCombinations.map( (trio,index) =>{
+            if(trio.every( cell =>{
+                return this.board[cell] === winnerMark
+            })){
+                winningCombination = index
+            }
+        })
+        switch(winningCombination){
+            case 0:
+                return ['h','up']
+            case 1:
+                return ['h','center']
+            case 2:
+                return ['h','down']
+            case 3:
+                return ['v','left']
+            case 4:
+                return ['v','center']
+            case 5:
+                return ['v','right']
+            case 6:
+                return ['h','d-down']
+            case 7:
+                return ['h','d-up']
+            default:
+                return []
+        }
+    }
     newGame(gamemode,foe,code){
         this.gameMode = gamemode
         this.started = false
