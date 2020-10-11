@@ -8,14 +8,18 @@ const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const message = document.querySelector('.message h1')
+const menu = new menu(game)
+const menuDiv = document.getElementById('menu')
+menuDiv.appendChild(menu.getMenu())
 // const botMenu = document.querySelector('#choose-mark')
 // const remoteMenu = document.querySelector('.remote-config')
 // const existingCode = document.querySelector('#existing-code')
 // const finalMessage = document.querySelector('.final-message')
 // const API_URL = 'http://localhost:8080/'
 
-cells.forEach( cell => { cell.addEventListener('click' , (e) => {boardHandler(e)})})
-modeOptions.forEach( option => {option.addEventListener('click', (e) => {menuHandler(e)})})
+menuDiv.addEventListener('click', e => {menuHandler(e)})
+modeOptions.forEach( option => {option.addEventListener('click', e => {menuHandler(e)})})
+cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
 // botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
 // remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
 // finalMessage.addEventListener('click', (e) => {restart(e)})
@@ -37,7 +41,7 @@ const boardHandler = (event) =>{
     if(canIPlay()) makeMove(clicked)
 }
 const menuHandler = (event) =>{
-    
+    console.log(event.target);
 }
 /********************************
 *

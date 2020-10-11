@@ -57,6 +57,7 @@ class Game{
     setTurn(turn){
         this.turn = turn
     }
+    //Utils
     updateBoard(mark,cell){
         if (this.board[cell] !== '') return false
         this.board[cell] = mark
