@@ -1,8 +1,7 @@
 class Game{
-    constructor(gamemode,started,menu,foe,code,turn){
+    constructor(gamemode,started,foe,code,turn){
         this.gameMode = gamemode
         this.started = started
-        this.option = menu
         this.facingMark = foe
         this.matchCode = code
         this.turn = turn

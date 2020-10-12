@@ -27,6 +27,7 @@ body{
     width: 100vw;
     height: 100vh; 
     background-color: var(--background-color);
+    font-family: var(--font);
     display: flex;
     flex-direction: column;
 }
@@ -40,7 +41,6 @@ nav{
     width: 100vw;
     min-height: 10vh;
     max-height: calc(50vh - 151px);
-    font-family: var(--font);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -55,7 +55,7 @@ nav{
 .indicator{
     height: 2px;
 }
-.selected{
+.selected .indicator{
     background-color: var(--background-color);
 }
 /********************************
@@ -220,7 +220,6 @@ nav{
 *
 ********************************/
 .message{
-    font-family: var(--font);
     color: var(--primary-color);
     text-align: center;
     margin-bottom: auto;
@@ -240,18 +239,12 @@ nav{
     transition: height 200ms ease-in-out;
 }
 #menu.show{
-    height: 100vh;
-}
-.final-message,
-.remote-config,
-#choose-mark{
-    font-family: var(--font);
     position: absolute;
     z-index: 10;
-    top: -100%;
     left: 0;
     width: 100vw;
     height: 100vh;
+    color: var(--background-color);
     background-color: rgba(0,0,0,0.9);
     display: flex;
     flex-direction: column;
@@ -279,7 +272,6 @@ nav{
 .restart-btn,
 .btn,
 .bot-start-btn{
-    font-family: var(--font);
     font-size: 2rem;
     padding: 1rem;
     cursor: pointer;
@@ -316,7 +308,6 @@ nav{
     border-radius: 1rem;
     border-color: var(--background-color);
     font-size: 1rem;
-    font-family: var(--font);
     color: var(--background-color);
     background-color: var(--primary-color);
 }

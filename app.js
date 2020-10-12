@@ -3,21 +3,20 @@ const gamemodes = {
     bot: 'local-bot',
     remote: 'remote-2P',
 }
-const game = new Game(gamemodes.local,'local-2P',false,'o','','x')
+const game = new Game(gamemodes.local,false,'o','','x')
 const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const message = document.querySelector('.message h1')
-const menu = new menu(game)
-const menuDiv = document.getElementById('menu')
-menuDiv.appendChild(menu.getMenu())
+const menu = new Menu(game,gamemodes.local)
+menu.mountMenu()
 // const botMenu = document.querySelector('#choose-mark')
 // const remoteMenu = document.querySelector('.remote-config')
 // const existingCode = document.querySelector('#existing-code')
 // const finalMessage = document.querySelector('.final-message')
 // const API_URL = 'http://localhost:8080/'
 
-menuDiv.addEventListener('click', e => {menuHandler(e)})
+menu.getMenu().addEventListener('click', e => {menuHandler(e)})
 modeOptions.forEach( option => {option.addEventListener('click', e => {menuHandler(e)})})
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
 // botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
@@ -41,7 +40,21 @@ const boardHandler = (event) =>{
     if(canIPlay()) makeMove(clicked)
 }
 const menuHandler = (event) =>{
-    console.log(event.target);
+    switch(event.target.classList[0]){
+        case 'show': // click on menu's background
+            if(game.checkWin() === false){
+                menu.newMenu()
+            }
+            break
+        case 'restart-btn':
+            game.newGame(gamemodes.local,'o','')
+            cleanBoard()
+            resetTurns()
+            menu.newMenu()
+            break
+        default: 
+        console.log(event.target.classList[0])
+    }
 }
 /********************************
 *
@@ -93,12 +106,12 @@ const getNewMove = () => {
 }
 const handleWinner = (winner) => {
     if(winner){
-        setMsg(`${winner.toLocaleUpperCase()} ha Ganado!`)
+        menu.showRestart(`${winner.toLocaleUpperCase()} ha Ganado!`)
         game.getWinningLine(winner).forEach( name => {
             board.classList.add(name)
         })
     }else{
-        setMsg('Es un empate!')
+        menu.showRestart('Es un empate!')
         }
 }
 /********************************
@@ -115,18 +128,18 @@ const setMsg = (text) => {
     }
     message.innerText = msg
 }
-//*************************     Old stuff     *************************
-//*************************     Alteraciones al Tablero     *************************
 const cleanBoard = () => {
     cells.forEach( cell => {
-        cell.classList.remove('x')
-        cell.classList.remove('o')
+        cell.classList.remove('x','o')
     })
+    board.classList.remove('h','v','up','down','center','left','right','d-down','d-up')
 }
 const resetTurns = () => {
     board.classList.remove('o')
     board.classList.add('x')
 }
+//*************************     Old stuff     *************************
+//*************************     Alteraciones al Tablero     *************************
 //*************************      Consultas de estados       ************************* 
 const isBotsTurn = () => {
     return game.gameMode === gamemodes.bot && board.classList.contains(game.facingMark)
