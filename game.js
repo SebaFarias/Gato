@@ -77,7 +77,7 @@ class Game{
             return 'o'
         }else if(board.every( cell => {
         return cell !== ''})){
-            return null
+            return 'draw'
         }
             return false
     }
@@ -118,5 +118,38 @@ class Game{
         this.matchCode = code
         this.turn = 'x'
         this.board = ['','','','','','','','','',]
+    }
+    tryHere( board , i , isBot){
+        const simpleBoard = [...board]
+        simpleBoard[i] = isBot? this.facingMark : this.otherMark(this.facingMark)
+        return simpleBoard
+    }
+    otherMark(mark){
+        return mark === 'x' ? 'o' : 'x' 
+    }
+    minimax(board,isMaximizer){
+        const winner = this.checkwin(board)
+        if(!winner){
+            if(isMaximizer){
+                let bestScore = -2
+                board.map((cell,index) => {
+                    if(cell === ''){
+                        const moveScore = this.minimax(this.tryHere(board,index,true),false)                
+                        bestScore = Math.max(moveScore,bestScore)
+                    }
+                })
+                return bestScore
+            }else{
+                let bestScore = 2
+                board.map((cell,index) => {
+                    if(cell === ''){
+                        const moveScore = this.minimax(this.tryHere(board,index,false),true)
+                        bestScore = Math.min(moveScore,bestScore)
+                    }
+                })
+                return bestScore
+            }}
+        if(winner === 'draw') return 0    
+        return winner === this.facingMark? 1 : -1
     }
 }

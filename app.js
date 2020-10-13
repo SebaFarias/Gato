@@ -8,7 +8,7 @@ const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const message = document.querySelector('.message h1')
-const menu = new Menu(game,gamemodes.local)
+const menu = new Menu( game, gamemodes.local, event => { menuHandler(event)} )
 menu.mountMenu()
 // const botMenu = document.querySelector('#choose-mark')
 // const remoteMenu = document.querySelector('.remote-config')
@@ -16,8 +16,7 @@ menu.mountMenu()
 // const finalMessage = document.querySelector('.final-message')
 // const API_URL = 'http://localhost:8080/'
 
-menu.getMenu().addEventListener('click', e => {menuHandler(e)})
-modeOptions.forEach( option => {option.addEventListener('click', e => {menuHandler(e)})})
+modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
 // botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
 // remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
@@ -34,26 +33,56 @@ cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})
 *       Clicks Handler
 *
 ********************************/
-const boardHandler = (event) =>{
+const boardHandler = event =>{
     const clicked = event.target
     if(clicked.classList.contains('x') || clicked.classList.contains('o')) return
     if(canIPlay()) makeMove(clicked)
 }
-const menuHandler = (event) =>{
+const menuHandler = event => {
     switch(event.target.classList[0]){
         case 'show': // click on menu's background
-            if(game.checkWin() === false){
+            if(game.checkwin() === false){
                 menu.newMenu()
+                menu.setOption(game.getGameMode)
             }
             break
         case 'restart-btn':
-            game.newGame(gamemodes.local,'o','')
+            game.newGame(menu.option,game.facingMark,'')
             cleanBoard()
             resetTurns()
             menu.newMenu()
+            switchTurns()
+            nextTurn()
+            break
+        case 'bot-start-btn':
+            const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
+            game.newGame(gamemodes.bot,botMark,'')
+            cleanBoard()
+            resetTurns()
+            menu.newMenu()
+            switchTurns()
+            nextTurn()
             break
         default: 
         console.log(event.target.classList[0])
+    }
+}
+const optionsHandler = event => {
+    const option = event.target.classList.contains('indicator') || event.target.classList.contains('gamemode') ?
+        event.target.parentElement : event.target
+    switch(option.classList[0]){
+        case gamemodes.local:
+            menu.setOption(gamemodes.local)
+            menu.showRestart('¿Comenzar nueva Partida?')
+            break
+        case gamemodes.bot:
+            menu.setOption(gamemodes.bot)
+            menu.showBot()
+            break
+        case gamemodes.remote:
+            menu.setOption(gamemodes.remote)
+            menu.showRemote()
+            break
     }
 }
 /********************************
@@ -82,7 +111,7 @@ const makeMove = (cell) => {
     board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
     game.updateBoard(game.turn,getIndex(cell))      
     const winner = game.checkwin()
-    winner === false ? nextTurn() : handleWinner(winner)
+    winner? handleWinner(winner) : nextTurn()
 }
 const nextTurn = () => {
     switchTurns()
@@ -105,10 +134,10 @@ const getNewMove = () => {
     // hacer el fetch a la API del próximo movimiento rival
 }
 const handleWinner = (winner) => {
-    if(winner){
+    if(winner !== 'draw'){
         menu.showRestart(`${winner.toLocaleUpperCase()} ha Ganado!`)
-        game.getWinningLine(winner).forEach( name => {
-            board.classList.add(name)
+        game.getWinningLine(winner).forEach( className => {
+            board.classList.add(className)
         })
     }else{
         menu.showRestart('Es un empate!')
@@ -124,7 +153,7 @@ const setMsg = (text) => {
     if(msg === null){ 
         msg = game.gameMode === gamemodes.local ? 
             `Turno de ${game.turn.toLocaleUpperCase()}` 
-            : isMyTurn()? 'Tu turno' : 'Turno del rival'     
+            : board.classList.contains(game.facingMark)? 'Turno del rival' : 'Tu turno'
     }
     message.innerText = msg
 }
@@ -141,9 +170,6 @@ const resetTurns = () => {
 //*************************     Old stuff     *************************
 //*************************     Alteraciones al Tablero     *************************
 //*************************      Consultas de estados       ************************* 
-const isBotsTurn = () => {
-    return game.gameMode === gamemodes.bot && board.classList.contains(game.facingMark)
-}
 const isMyTurn = () => {
     return board.classList.contains(otherMark(nonClientMark))
 }
@@ -155,9 +181,6 @@ const isFree = (cell) =>{
         if(cell.classList.contains('x') || cell.classList.contains('o')) return false
     }
     return true
-}
-const otherMark = mark => {
-    return mark === 'x' ? 'o' : 'x' 
 }
 //*************************         Modos de Juego           *************************
 const restart = (e) => {
@@ -192,63 +215,22 @@ const newBotGame = (playerMark) => {
 }
 //*************************       Movimientos del Bot        *************************
 const botMove = () => {
-    if(isBotsTurn()){
+    if(board.classList.contains(game.facingMark)){
         let choosenCell,
         bestScore = -2
-        cells.forEach( (cell , index) =>{
-            if(isFree(cell)){
-                let moveScore = minimax(tryHere(cells,index,true),false)                
+        game.board.map( (cell , index) =>{
+            if(cell === ''){
+                let moveScore = game.minimax(game.tryHere(game.board,index,true),false)                
                 if(moveScore > bestScore ){
                     bestScore = moveScore
-                    choosenCell = cell
+                    choosenCell = cells[index]
                 }
             }
         })
         setTimeout(()=>{makeMove(choosenCell)},400)
     }
 }
-const minimax = (_board,isMaximizer) => {
-    let winner = checkWin(_board)
-    if(isFinnished(_board)){
-        if(winner === false){
-            return 0    
-        }
-        return winner === nonClientMark? 1 : -1
-    }
-    if(isMaximizer){
-        let bestScore = -2
-        _board.forEach((cell,index) => {
-            if(cell === ' '){
-                let moveScore = minimax(tryHere(_board,index,true),false)                
-                bestScore = Math.max(moveScore,bestScore)
-            }
-        })
-        return bestScore
-    }else{
-        let bestScore = 2
-        _board.forEach((cell,index) => {
-            if(cell === ' '){
-                let moveScore = minimax(tryHere(_board,index,false),true)
-                bestScore = Math.min(moveScore,bestScore)
-            }
-        })
-        return bestScore
-    }
-}
-const tryHere = ( _board , i , isBot) => {
-    let simpleBoard = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
-    if(typeof(_board[0]) !== 'string' ){
-        _board.forEach( (cell,index) => {
-            if(cell.classList.contains('x')) simpleBoard[index] = 'x'
-            if(cell.classList.contains('o')) simpleBoard[index] = 'o'
-            if(index === i) simpleBoard[index] = isBot? nonClientMark : otherMark(nonClientMark)
-        })
-    }else{
-        simpleBoard = [..._board]
-        simpleBoard[i] = isBot? nonClientMark : otherMark(nonClientMark)
-    }
-    return simpleBoard
-}
+
 //*************************         Menus y Vistas           *************************
 
 const changeGameMode = (event) => {
@@ -291,12 +273,6 @@ const joinExistingMatch = (code) => {
 const showFinalMessage = (mensaje) => {
     finalMessage.querySelector('h1').innerText = mensaje
     finalMessage.classList.add('show')
-}
-const won = (winner) => {
-    showFinalMessage(`${winner} ha ganado !`)
-}
-const draw = () => {
-    showFinalMessage('Es un empate!')
 }
 //*************************          HTTP Requests           *************************
 const sendNewMatchReq = () => {

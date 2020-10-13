@@ -252,10 +252,11 @@ nav{
     justify-content: center;
     transition: all 0.5s ease;
 }
-.remote-config.show,
-.final-message.show,
-#choose-mark.show{
-    transform: translate(0,100%);
+.remote-config{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
 .cell,.bot-start-btn{
     position: relative;

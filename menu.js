@@ -1,7 +1,11 @@
 class Menu{
-    constructor(game,option){
+    constructor(game,option,handler){
         this.game = game
         this.menu = this.newMenu()
+        this.option = option
+        this.handler = handler
+    }
+    setOption(option){
         this.option = option
     }
     newMenu(){
@@ -16,7 +20,7 @@ class Menu{
         document.body.appendChild(this.menu)
     }
     newBotMenu(){
-        this.newMenu()
+        this.menu = this.newMenu()
         this.menu.innerHTML =
         `<div id="choose-mark">
         <h1>Escoge tu marca:</h1>
@@ -27,27 +31,30 @@ class Menu{
         </div>
         </div>`
         if(!document.getElementById('menu'))this.mountMenu()
+        this.menu.addEventListener('click', (e) => {this.handler(e)} )
     }
     newRestartMenu(){
-        this.newMenu()
+        this.menu = this.newMenu()
         this.menu.innerHTML =
         `<h1 id="finalMsg"></h1>
         <button class="restart-btn">Restart</button>`
         if(!document.getElementById('menu'))this.mountMenu()
+        this.menu.addEventListener('click', (e) => {this.handler(e)} )
     }
     newRemoteMenu(){
-        this.newMenu()
+        this.menu = this.newMenu()
         this.menu.innerHTML =
         `<form action="" class="remote-config">
-            <button class="btn new">Crear Partida</button>
-                <div id="generated-code">O</div>
-                <div for="match-code">Partida Existente</div>
-                <div class="existing-match">
-                    <input name="match-code" id="existing-code" placeholder="Ingrese Codigo"></input>
-                    <button class="btn join">Unirse</button>
-                </div>
+        <button class="btn new">Crear Partida</button>
+        <div id="generated-code">O</div>
+        <div for="match-code">Partida Existente</div>
+        <div class="existing-match">
+        <input name="match-code" id="existing-code" placeholder="Ingrese Codigo"></input>
+        <button class="btn join">Unirse</button>
+        </div>
         </form>`
         if(!document.getElementById('menu'))this.mountMenu()
+        this.menu.addEventListener('click', (e) => {this.handler(e)} )
     }
     setFinalMsg(text){
         if(document.getElementById('finalMsg')) document.getElementById('finalMsg').innerText = text
@@ -64,6 +71,14 @@ class Menu{
     showRestart(text){        
         this.newRestartMenu()
         this.setFinalMsg(text)
+        this.showMenu()
+    }
+    showBot(){
+        this.newBotMenu()
+        this.showMenu()
+    }
+    showRemote(){
+        this.newRemoteMenu()
         this.showMenu()
     }
 }
