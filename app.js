@@ -1,44 +1,129 @@
-const winningCombinations = [
-    [0,1,2],
-    [3,4,5],
-    [6,7,8],
-    [0,3,6],
-    [1,4,7],
-    [2,5,8],
-    [0,4,8],
-    [2,4,6]
-]
 const gamemodes = {
-    local2P: 'local-2P',
-    bot: 'local-bot'
+    local: 'local-2P',
+    bot: 'local-bot',
+    remote: 'remote-2P',
 }
+const game = new Game(gamemodes.local,false,'o','x','')
 const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
-const botMenu = document.querySelector('#choose-mark')
-const finalMessage = document.querySelector('.final-message')
+const message = document.querySelector('.message h1')
+const menu = new Menu( game, gamemodes.local, event => { menuHandler(event)} )
+menu.mountMenu()
+// const botMenu = document.querySelector('#choose-mark')
+// const remoteMenu = document.querySelector('.remote-config')
+// const existingCode = document.querySelector('#existing-code')
+// const finalMessage = document.querySelector('.final-message')
+// const API_URL = 'http://localhost:8080/'
 
-let gameMode = gamemodes.local2P
-let option = 'local-2P'
-let matchStarted = false
-let botMark = 'o'
-
-cells.forEach( cell => { cell.addEventListener('click' , (e) => {makeMove(e.target)})})
-modeOptions.forEach( option => {option.addEventListener('click', (e) => {changeGameMode(e)})})
-botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
-finalMessage.addEventListener('click', (e) => {restart(e)})
-
-//*************************     Alteraciones al Tablero     *************************
-const makeMove = (cell) => {
-    if(cell!== false && isFree(cell)){
-        if(board.classList.contains('x')){
-            cell.classList.add('x')
-        } else{
-            cell.classList.add('o')
-        }              
-        matchStarted = true
-        switchTurns()
+modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
+cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
+// botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
+// remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
+// finalMessage.addEventListener('click', (e) => {restart(e)})
+/********************************* 
+*       Table of Contents
+*       1- Clicks Handler
+*       2- Utils
+*       3- Board changes
+*       4- Views
+*********************************/
+/********************************
+*
+*       Clicks Handler
+*
+********************************/
+const boardHandler = event =>{
+    const clicked = event.target
+    if(clicked.classList.contains('x') || clicked.classList.contains('o')) return
+    if(canIPlay()) makeMove(clicked)
+}
+const menuHandler = event => {
+    switch(event.target.classList[0]){
+        case 'show': // click on menu's background
+            if(game.checkwin() === false){
+                menu.newMenu()
+                menu.setOption(game.getGameMode)
+            }
+            break
+        case 'restart-btn':
+            game.newGame(menu.option,game.facingMark,'')
+            cleanBoard()
+            resetTurns()
+            menu.newMenu()
+            switchTurns()
+            nextTurn()
+            break
+        case 'bot-start-btn':
+            const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
+            game.newGame(gamemodes.bot,botMark,'')
+            cleanBoard()
+            resetTurns()
+            menu.newMenu()
+            switchTurns()
+            nextTurn()
+            break
+        default: 
+        console.log(event.target.classList[0])
     }
+}
+const optionsHandler = event => {
+    const option = event.target.classList.contains('indicator') || event.target.classList.contains('gamemode') ?
+        event.target.parentElement : event.target
+    switch(option.classList[0]){
+        case gamemodes.local:
+            menu.setOption(gamemodes.local)
+            menu.showRestart('¿Comenzar nueva Partida?')
+            break
+        case gamemodes.bot:
+            menu.setOption(gamemodes.bot)
+            menu.showBot()
+            break
+        case gamemodes.remote:
+            menu.setOption(gamemodes.remote)
+            menu.showRemote()
+            break
+    }
+}
+/********************************
+*
+*       Utils
+*
+********************************/
+const getIndex = cell => {
+    let index 
+    Array.from(cells).map( (square, i) => {
+        if (square === cell) index = i
+    })
+    return index
+}
+const canIPlay = () => {
+    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
+    if(game.checkwin() !== false) return false
+    return true
+}
+/********************************
+*
+*       Board changes
+*
+********************************/
+const makeMove = (cell) => {
+    board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
+    game.updateBoard(game.turn,getIndex(cell))      
+    const winner = game.checkwin()
+    winner? handleWinner(winner) : nextTurn()
+}
+const nextTurn = () => {
+    switchTurns()
+    switch(game.gameMode){
+        case gamemodes.bot:
+            botMove()
+            break
+        case gamemodes.remote:
+            remoteMove()
+            break
+    }
+<<<<<<< HEAD
     let winner = checkWin(cells)
     if(winner !== false){
         drawLine(winner)
@@ -48,17 +133,74 @@ const makeMove = (cell) => {
     }
     else if(isFinnished(cells))showFinalMessage('Es un empate!')
     if(!isFinnished(cells))botMove()
+=======
+}
+const botMove = () => {
+    if(board.classList.contains(game.facingMark)){
+        let choosenCell,
+        bestScore = -2
+        game.board.map( (cell , index) =>{
+            if(cell === ''){
+                let moveScore = game.minimax(game.tryHere(game.board,index,true),false)                
+                if(moveScore > bestScore ){
+                    bestScore = moveScore
+                    choosenCell = cells[index]
+                }
+            }
+        })
+        setTimeout(()=>{makeMove(choosenCell)},200)
+    }
+}
+const remoteMove = async() => {
+    if(board.classList.contains(game.facingMark)){
+        const choosenCell = await fetchMove()
+        makeMove(choosenCell)
+    }
+    // hacer el fetch a la API del próximo movimiento rival
+>>>>>>> gh-pages
 }
 const switchTurns = () => {
     board.classList.toggle('x')
     board.classList.toggle('o')
+    game.switchTurns()
+    setMsg(null)    
+}
+const handleWinner = (winner) => {
+    if(winner !== 'draw'){
+        menu.showRestart(`${winner.toLocaleUpperCase()} ha Ganado!`)
+        game.getWinningLine(winner).forEach( className => {
+            board.classList.add(className)
+        })
+    }else{
+        menu.showRestart('Es un empate!')
+        }
+}
+/********************************
+*
+*       Views
+*
+********************************/
+const setMsg = (text) => {
+    let msg = text
+    if(msg === null){ 
+        msg = game.gameMode === gamemodes.local ? 
+            `Turno de ${game.turn.toLocaleUpperCase()}` 
+            : board.classList.contains(game.facingMark)? 'Turno del rival' : 'Tu turno'
+    }
+    message.innerText = msg
 }
 const cleanBoard = () => {
+<<<<<<< HEAD
     cleanLine()
     cells.forEach(cell=>{
         cell.classList.remove('x')
         cell.classList.remove('o')
+=======
+    cells.forEach( cell => {
+        cell.classList.remove('x','o')
+>>>>>>> gh-pages
     })
+    board.classList.remove('h','v','up','down','center','left','right','d-down','d-up')
 }
 const cleanLine = () => {
     const lineStyles = ['line-h','line-v','up','down','left','rigth','diagonal','diagonal-inv','center','show-line']
@@ -70,6 +212,7 @@ const resetTurns = () => {
     board.classList.remove('o')
     board.classList.add('x')
 }
+<<<<<<< HEAD
 const drawLine = (winner) => {
     if(cells[0].classList.contains(winner) && cells[1].classList.contains(winner) && cells[2].classList.contains(winner)){
         board.classList.add('line-h')
@@ -105,10 +248,13 @@ const drawLine = (winner) => {
     }
     setTimeout(()=>{board.classList.add('show-line')},50)
 }
+=======
+//*************************     Old stuff     *************************
+//*************************     Alteraciones al Tablero     *************************
+>>>>>>> gh-pages
 //*************************      Consultas de estados       ************************* 
-const isBotsTurn = () => {
-    if(gameMode === gamemodes.bot && board.classList.contains(botMark))return true
-    return false
+const isMyTurn = () => {
+    return board.classList.contains(otherMark(nonClientMark))
 }
 const isFree = (cell) =>{
     if(typeof(cell) === 'string'){
@@ -119,139 +265,52 @@ const isFree = (cell) =>{
     }
     return true
 }
-const checkWin = (cellsToCheck) => {
-    if(typeof(cellsToCheck[0]) === 'string'){
-        if(winningCombinations.some(combination => {
-            return combination.every(element => {
-                return cellsToCheck[element] === 'x'
-            })
-        }))return 'x'
-        if(winningCombinations.some(combination => {
-            return combination.every(element => {
-                return cellsToCheck[element] === 'o'
-            })
-        }))return 'o'
-    }else{
-        if(winningCombinations.some(combinacion => {
-            return combinacion.every(element => {
-                return cellsToCheck[element].classList.contains('x')
-            })
-        }))return 'x'
-        if(winningCombinations.some(combinacion => {
-            return combinacion.every(element => {
-                return cellsToCheck[element].classList.contains('o')
-            })
-        }))return 'o'
-    }
-    return false
-}
-const isFinnished = (cellsToCheck) => {
-    if(checkWin(cellsToCheck) !== false)return true
-    for( i=0 ; i < cellsToCheck.length ; i++){
-        if(isFree(cellsToCheck[i]))return false
-    }
-    return true
-}
-const otherMark = mark => {
-    return mark === 'x' ? 'o' : 'x' 
-}
 //*************************         Modos de Juego           *************************
 const restart = (e) => {
     if(e.target.classList.contains('restart-btn')){
-        if(option === gamemodes.local2P){
+        if(option === gamemodes.local){
             cleanBoard()
             resetTurns()
-            gameMode = gamemodes.local2P
+            gameMode = gamemodes.local
             matchStarted = false
-            showSelectedMode(`.${gamemodes.local2P}`)
+            showSelectedMode(`.${gamemodes.local}`)
             finalMessage.classList.remove('show')
         }
         if(option === gamemodes.bot){
-            newBotGame(botMenu.querySelector(`.${botMark === 'x'? 'o': 'x'}`))
+            newBotGame(botMenu.querySelector(`.${nonClientMark === 'x'? 'o': 'x'}`))
             finalMessage.classList.remove('show')
         }
     }
+    setMsg(null)
     if(!isFinnished(cells))finalMessage.classList.remove('show')
 }
 const newBotGame = (playerMark) => {
-    botMark = playerMark.classList.contains('x')? 'o' : 'x'
-    matchStarted = true
+    nonClientMark = playerMark.classList.contains('x')? 'o' : 'x'
+    matchStarted = false
     gameMode = gamemodes.bot
     option = gamemodes.bot
     cleanBoard()
     resetTurns()
     botMove()
     showSelectedMode('.local-bot')
+    setMsg(null)
     botMenu.classList.remove('show')
 }
 //*************************       Movimientos del Bot        *************************
-const botMove = () => {
-    if(isBotsTurn()){
-        let choosenCell,
-        bestScore = -2
-        cells.forEach( (cell , index) =>{
-            if(isFree(cell)){
-                let moveScore = minimax(tryHere(cells,index,true),false)                
-                if(moveScore > bestScore ){
-                    bestScore = moveScore
-                    choosenCell = cell
-                }
-            }
-        })
-        makeMove(choosenCell)
-    }
-}
-const minimax = (_board,isMaximizer) => {
-    let winner = checkWin(_board)
-    if(isFinnished(_board)){
-        if(winner === false){
-            return 0    
-        }
-        return winner === botMark? 1 : -1
-    }
-    if(isMaximizer){
-        let bestScore = -2
-        _board.forEach((cell,index) => {
-            if(cell === ' '){
-                let moveScore = minimax(tryHere(_board,index,true),false)                
-                bestScore = Math.max(moveScore,bestScore)
-            }
-        })
-        return bestScore
-    }else{
-        let bestScore = 2
-        _board.forEach((cell,index) => {
-            if(cell === ' '){
-                let moveScore = minimax(tryHere(_board,index,false),true)
-                bestScore = Math.min(moveScore,bestScore)
-            }
-        })
-        return bestScore
-    }
-}
-const tryHere = ( _board , i , isBot) => {
-    let simpleBoard = [' ',' ',' ',' ',' ',' ',' ',' ',' ']
-    if(typeof(_board[0]) !== 'string' ){
-        _board.forEach( (cell,index) => {
-            if(cell.classList.contains('x')) simpleBoard[index] = 'x'
-            if(cell.classList.contains('o')) simpleBoard[index] = 'o'
-            if(index === i) simpleBoard[index] = isBot? botMark : otherMark(botMark)
-        })
-    }else{
-        simpleBoard = [..._board]
-        simpleBoard[i] = isBot? botMark : otherMark(botMark)
-    }
-    return simpleBoard
-}
-//*************************              Menus              *************************
+
+
+//*************************         Menus y Vistas           *************************
+
 const changeGameMode = (event) => {
     const selectedOption = event.target.parentElement
     if(selectedOption.classList.contains('local-2P')){
-        option = gamemodes.local2P
+        option = gamemodes.local
         showFinalMessage('¿Comenzar nueva Partida?')
     }
     if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
+    if (selectedOption.classList.contains('remote-2P'))remoteMenu.classList.add('show');
 }
+
 const showSelectedMode = (mode) => {
     modeOptions.forEach(option => {
         option.querySelector('.indicator').classList.remove('selected')
@@ -263,13 +322,42 @@ const handleBotMenu = (event) => {
     if(clicked.classList.contains('bot-start-btn'))newBotGame(clicked)
     else if(!isFinnished(cells))botMenu.classList.remove('show')
 }
+const handleRemoteMenu = (event) =>{
+    event.preventDefault()
+    let clicked = event.target
+    if(clicked.classList.contains('new'))createNewMatch()
+    else if(clicked.classList.contains('join'))joinExistingMatch(existingCode.value)
+    else if(clicked.classList.contains('remote-config'))remoteMenu.classList.remove('show')
+}
+const createNewMatch = () => {
+    sendNewMatchReq()
+    console.log('new btn pressed');
+}
+const joinExistingMatch = (code) => {
+    sendJoinReq(code)
+    console.log(`Join btn pressed try: ${code}`);
+} 
+
 const showFinalMessage = (mensaje) => {
     finalMessage.querySelector('h1').innerText = mensaje
     finalMessage.classList.add('show')
 }
-const won = (winner) => {
-    showFinalMessage(`${winner} ha ganado !`)
+//*************************          HTTP Requests           *************************
+const sendNewMatchReq = () => {
+    fetch(API_URL+'/newConnection')
+        .then( res => {
+        return res.json();
+    })
+        .then(data => console.log(data))
 }
-const draw = () => {
-    showFinalMessage('Es un empate!')
-}
+const sendJoinReq = (code) => {
+    fetch(API_URL,{
+        method: 'POST',
+        body: JSON.stringify({
+            code: code
+        }),
+        headers: {
+            'content-type': 'application/json'
+        }        
+    })
+}   

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
 Tabla de Contenidos:
     - Configuracion General
@@ -10,28 +11,60 @@ Tabla de Contenidos:
 /******************************************
 *        Configuracion General
 ******************************************/
+=======
+/********************************* 
+*       Table of Contents
+*       1- General Config
+*       2- Nav Elements
+*       3- Board and Cells
+*       4- Screen Message
+*       5- Menu
+*       6- Media Query
+*********************************/
+/********************************
+*
+*       1- General Config
+*
+********************************/
+>>>>>>> gh-pages
 *,::before,::after{
-    box-sizing: border-box;  
-    --cell-size: 100px;
+    box-sizing: border-box; 
+    --font:'Poppins', sans-serif;
+}
+:root{
+    --cell-size: min(20vh,30vw);
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;
     --background-color: #FFEF00;
 }
 body{
-    margin: 0;  
+    margin: 0; 
+    width: 100vw;
+    height: 100vh; 
     background-color: var(--background-color);
+    font-family: var(--font);
+    display: flex;
+    flex-direction: column;
 }
+<<<<<<< HEAD
 /******************************************
 *        Opciones de Juego 
 ******************************************/
 .nav{
     position: fixed;
     top: 0;
+=======
+/********************************
+*
+*       2- Nav Elements
+*
+********************************/
+nav{
+    margin-bottom: auto;
+>>>>>>> gh-pages
     width: 100vw;
-    min-width: 300px;
     min-height: 10vh;
     max-height: calc(50vh - 151px);
-    font-family: 'Poppins', sans-serif;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -41,23 +74,39 @@ body{
 .option{
     margin: auto;
     padding: 1rem;
+    text-align: center;
 }
 .indicator{
     height: 2px;
 }
-.selected{
+.selected .indicator{
     background-color: var(--background-color);
 }
+<<<<<<< HEAD
 /******************************************
 *        Tablero
 ******************************************/
 .board{
     width: 100vw;
     height: 100vh;
+=======
+/********************************
+*
+*       3- Board and cells
+*
+********************************/
+.board{ 
+    position: relative;
+    margin: auto;
+>>>>>>> gh-pages
     display: grid;
     justify-content: center;
     align-content: center;
     grid-template-columns: repeat(3,auto);
+}
+/********* Cell borders *********/
+.cell{    
+    border: 2px solid var(--primary-color);
 }
 .cell:nth-child(3n + 1){
     border-left: none;
@@ -75,17 +124,11 @@ body{
 .cell:nth-child(9){
     border-bottom: none;
 }
-.cell{    
-    border: 2px solid var(--primary-color);
-    background-color: var(--background-color);
-}
-.cell.x,.cell.o{
+/********* Cell Marks *********/
+.blocked .cell,
+.cell.x,
+.cell.o{
     cursor: not-allowed;
-}
-.board.x .cell:not(.x):not(.o):hover::before,
-.board.x .cell:not(.x):not(.o):hover::after,
-.board.o .cell:not(.x):not(.o):hover::before{
-    background-color: var(--transparent-primary-color) !important;
 }
 .cell.x::before,
 .cell.x::after,
@@ -99,6 +142,7 @@ body{
     height: calc(var(--cell-size)*0.9); 
     background-color: var(--primary-color);
 }
+/********* X Marks *********/
 .cell.x::before,
 .bot-start-btn.x:before,
 .board.x .cell:not(.x):not(.o):hover::before{
@@ -109,6 +153,7 @@ body{
 .board.x .cell:not(.x):not(.o):hover::after{
     transform: rotate(-45deg);   
 }
+/********* O Marks *********/
 .cell.o::before,
 .cell.o::after,
 .bot-start-btn.o:before,
@@ -133,6 +178,7 @@ body{
     height: calc(var(--cell-size)*0.6); 
     background-color: var(--background-color);
 }
+<<<<<<< HEAD
 
 /******************************************
 *        Linea de Victoria
@@ -203,22 +249,118 @@ body{
 .final-message,
 #choose-mark{
     font-family: 'Poppins', sans-serif;
+=======
+/********* Posible Marks *********/
+.board.x .cell:not(.x):not(.o):hover::before,
+.board.x .cell:not(.x):not(.o):hover::after,
+.board.o .cell:not(.x):not(.o):hover::before{
+    background-color: var(--transparent-primary-color) !important;
+}
+/********* Winning line *********/
+.board::after{
+    content: '';
+    position: absolute;
+    height: 0;
+    width: 0;
+    background: var(--primary-color);
+}
+.board.v::after{
+    top: 0;
+    width: calc(var(--cell-size)*0.13);
+    transition: height 200ms ease-in-out;
+}
+.board.v.center::after{
+    height: 100%;
+    left: 50%;
+    transform: translate(-50%,0%) 
+}
+.board.v.left::after{
+    height: 100%;
+    left: calc(var(--cell-size)/2);
+    transform: translate(-50%,0%) 
+}
+.board.v.right::after{
+    height: 100%;
+    right: calc(var(--cell-size)/2);
+    transform: translate(50%,0%) 
+}
+.board.h::after{
+    left: 0;
+    height: calc(var(--cell-size)*0.13);
+    transition: width 200ms ease-in-out;
+}
+.board.h.center::after{    
+    width: 100%;
+    top: 50%;
+    transform: translate(0%,-50%) 
+}
+.board.h.up::after{
+    width: 100%;
+    top: calc(var(--cell-size)/2);
+    transform: translate(0%,-50%) 
+}
+.board.h.down::after{
+    width: 100%;
+    bottom: calc(var(--cell-size)/2);
+    transform: translate(0%,50%) 
+}
+.board.h.d-down::after{
+    width: 141.42%;
+    height: calc(var(--cell-size)*0.13);
+    top: 50%;
+    left: -20.5%;
+    transform: translate(0%,-50%) rotate(45deg);
+}
+.board.h.d-up::after{
+    width: 141.42%;
+    height: calc(var(--cell-size)*0.13);
+    top: 50%;
+    left: -20.5%;
+    transform: translate(0%,-50%) rotate(-45deg);
+}
+
+/********************************
+*
+*       4- Screen Message
+*
+********************************/
+.message{
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: auto;
+}
+/********************************
+*
+*       5- Menu
+*
+********************************/
+#menu{
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 0;
+    background: rgba(0,0,0,0.8);
+    transition: height 200ms ease-in-out;
+}
+#menu.show{
+>>>>>>> gh-pages
     position: absolute;
     z-index: 10;
-    top: -100%;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0,0,0,0.9);
+    color: var(--background-color);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.5s ease;
 }
-.final-message.show,
-#choose-mark.show{
-    transform: translate(0,100%);
+.remote-config{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
 }
 .cell,.bot-start-btn{
     position: relative;
@@ -232,10 +374,9 @@ body{
 .bot-start-btn{
     margin: 1rem;
 }
-
 .restart-btn,
+.btn,
 .bot-start-btn{
-    font-family: 'Poppins', sans-serif;
     font-size: 2rem;
     padding: 1rem;
     cursor: pointer;
@@ -252,6 +393,7 @@ body{
     background-color: var(--background-color);
 }
 .restart-btn:hover,
+.btn:hover,
 .bot-start-btn.o:hover::after,
 .bot-start-btn:hover{
     background-color: var(--primary-color);
@@ -261,8 +403,23 @@ body{
 .marks{
     display: flex;
 }
-.final-message h1,
-#choose-mark h1{
+.existing-match{
+    display: flex;
+    align-items: center;
+}
+#existing-code{
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 1rem;
+    border-color: var(--background-color);
+    font-size: 1rem;
+    color: var(--background-color);
+    background-color: var(--primary-color);
+}
+#finalMsg,
+#choose-mark h1,
+.remote-config div{
+    text-align: center;
     font-size: 2rem;
     color: var(--background-color);
 }
@@ -271,6 +428,7 @@ body{
     font-size: 1rem;
     color: var(--background-color);
 }
+<<<<<<< HEAD
 /******************************************
 *        Media Query  
 ******************************************/
@@ -279,7 +437,28 @@ body{
         left: 0;
         min-width: 10vw;
         max-width: 25vw;
+=======
+/********************************
+*
+*       6- Media Query 
+*
+********************************/
+@media (max-height: 400px){
+    body{
+        flex-direction: row;
+    }
+    nav{
+        width: 25vw;
+>>>>>>> gh-pages
         min-height: 100vh;
         flex-direction: column;
+        margin-bottom: 0;
+    }
+    .message{
+        width: calc(50vw - 154px);
+        margin-top: auto;
+    }
+    :root{
+        --cell-size: 25vh;
     }
 }

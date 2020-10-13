@@ -8,13 +8,17 @@
     <title>Seba's Gato</title>
 </head>
 <body>
-    <nav class="nav">
-        <div class="local-2P option">
-            <div class="2P">2P - Local</div>
-            <div class="indicator selected"></div>
+    <nav>
+        <div class="local-2P option selected">
+            <div class="gamemode">2P - Local</div>
+            <div class="indicator"></div>
         </div>
         <div class="local-bot option">
-            <div class="2P">P1 VS Bot</div>
+            <div class="gamemode">P1 VS Bot</div>
+            <div class="indicator"></div>
+        </div>
+        <div class="remote-2P option">
+            <div class="gamemode">2P - Remoto</div>
             <div class="indicator"></div>
         </div>
     </nav>
@@ -29,18 +33,11 @@
         <div class="cell"></div>
         <div class="cell"></div>
     </div>
-    <div id="choose-mark">
-        <h1>Escoge tu marca:</h1>
-        <h2>( las X comienzan )</h2>
-        <div class="marks">
-            <div class="bot-start-btn x"></div>
-            <div class="bot-start-btn o"></div>
-        </div>
+    <div class="message">
+        <h1>Turno de X</h1>
     </div>
-    <div class="final-message">
-        <h1></h1>
-        <button class="restart-btn">Restart</button>
-    </div>
+    <script src="./game.js" ></script>
+    <script src="./menu.js" ></script>
     <script src="./app.js" ></script>
 </body>
 </html>
