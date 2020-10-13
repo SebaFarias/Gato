@@ -45,12 +45,12 @@ class Menu{
         this.menu = this.newMenu()
         this.menu.innerHTML =
         `<form action="" class="remote-config">
-        <button class="btn new">Crear Partida</button>
+        <button class="new btn">Crear Partida</button>
         <div id="generated-code">O</div>
         <div for="match-code">Partida Existente</div>
         <div class="existing-match">
         <input name="match-code" id="existing-code" placeholder="Ingrese Codigo"></input>
-        <button class="btn join">Unirse</button>
+        <button class="join btn">Unirse</button>
         </div>
         </form>`
         if(!document.getElementById('menu'))this.mountMenu()

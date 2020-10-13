@@ -1,10 +1,11 @@
 class Game{
-    constructor(gamemode,started,foe,code,turn){
+    constructor(gamemode,started,foe,turn,code){
         this.gameMode = gamemode
         this.started = started
         this.facingMark = foe
         this.matchCode = code
         this.turn = turn
+        this.lastUpdate = ''
         this.board = ['','','','','','','','','',]
         this.winningCombinations = [
             [0,1,2],    [3,4,5],    [6,7,8],
@@ -63,6 +64,9 @@ class Game{
         this.started = true
         return true
     } 
+    remoteUpdate(dateTime){
+        this.lastUpdate = dateTime
+    }
     switchTurns(){
         this.turn = this.turn === 'o'? 'x' :'o' 
     }
@@ -111,11 +115,19 @@ class Game{
                 return []
         }
     }
-    newGame(gamemode,foe,code){
+    newGame(gamemode,foe){
         this.gameMode = gamemode
         this.started = false
         this.facingMark = foe
-        this.matchCode = code
+        this.turn = 'x'
+        this.board = ['','','','','','','','','',]
+    }
+    newRemoteGame(foe,code,updated){
+        this.gameMode = 'remote-2P'
+        this.started = false
+        this.facingMark = foe
+        this.code = code
+        this.lastUpdate = updated
         this.turn = 'x'
         this.board = ['','','','','','','','','',]
     }

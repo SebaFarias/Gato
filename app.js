@@ -3,7 +3,7 @@ const gamemodes = {
     bot: 'local-bot',
     remote: 'remote-2P',
 }
-const game = new Game(gamemodes.local,false,'o','','x')
+const game = new Game(gamemodes.local,false,'o','x','')
 const board = document.querySelector('.board')
 const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
@@ -120,18 +120,38 @@ const nextTurn = () => {
             botMove()
             break
         case gamemodes.remote:
-            getNewMove()
+            remoteMove()
             break
     }
+}
+const botMove = () => {
+    if(board.classList.contains(game.facingMark)){
+        let choosenCell,
+        bestScore = -2
+        game.board.map( (cell , index) =>{
+            if(cell === ''){
+                let moveScore = game.minimax(game.tryHere(game.board,index,true),false)                
+                if(moveScore > bestScore ){
+                    bestScore = moveScore
+                    choosenCell = cells[index]
+                }
+            }
+        })
+        setTimeout(()=>{makeMove(choosenCell)},200)
+    }
+}
+const remoteMove = async() => {
+    if(board.classList.contains(game.facingMark)){
+        const choosenCell = await fetchMove()
+        makeMove(choosenCell)
+    }
+    // hacer el fetch a la API del próximo movimiento rival
 }
 const switchTurns = () => {
     board.classList.toggle('x')
     board.classList.toggle('o')
     game.switchTurns()
     setMsg(null)    
-}
-const getNewMove = () => {
-    // hacer el fetch a la API del próximo movimiento rival
 }
 const handleWinner = (winner) => {
     if(winner !== 'draw'){
@@ -214,22 +234,7 @@ const newBotGame = (playerMark) => {
     botMenu.classList.remove('show')
 }
 //*************************       Movimientos del Bot        *************************
-const botMove = () => {
-    if(board.classList.contains(game.facingMark)){
-        let choosenCell,
-        bestScore = -2
-        game.board.map( (cell , index) =>{
-            if(cell === ''){
-                let moveScore = game.minimax(game.tryHere(game.board,index,true),false)                
-                if(moveScore > bestScore ){
-                    bestScore = moveScore
-                    choosenCell = cells[index]
-                }
-            }
-        })
-        setTimeout(()=>{makeMove(choosenCell)},400)
-    }
-}
+
 
 //*************************         Menus y Vistas           *************************
 

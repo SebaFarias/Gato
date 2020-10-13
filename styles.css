@@ -235,7 +235,7 @@ nav{
     top: 0;
     width: 100vw;
     height: 0;
-    background: rgba(0,0,0,0.9);
+    background: rgba(0,0,0,0.8);
     transition: height 200ms ease-in-out;
 }
 #menu.show{
@@ -245,12 +245,10 @@ nav{
     width: 100vw;
     height: 100vh;
     color: var(--background-color);
-    background-color: rgba(0,0,0,0.9);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.5s ease;
 }
 .remote-config{
     display: flex;
@@ -312,9 +310,10 @@ nav{
     color: var(--background-color);
     background-color: var(--primary-color);
 }
-.final-message h1,
+#finalMsg,
 #choose-mark h1,
 .remote-config div{
+    text-align: center;
     font-size: 2rem;
     color: var(--background-color);
 }
