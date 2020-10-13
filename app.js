@@ -49,6 +49,7 @@ const menuHandler = event => {
             game.newGame(menu.option,game.facingMark,'')
             cleanBoard()
             resetTurns()
+            showSelectedOption()
             menu.newMenu()
             switchTurns()
             nextTurn()
@@ -58,6 +59,7 @@ const menuHandler = event => {
             game.newGame(gamemodes.bot,botMark,'')
             cleanBoard()
             resetTurns()
+            showSelectedOption()
             menu.newMenu()
             switchTurns()
             nextTurn()
@@ -181,6 +183,12 @@ const cleanBoard = () => {
         cell.classList.remove('x','o')
     })
     board.classList.remove('h','v','up','down','center','left','right','d-down','d-up')
+}
+const showSelectedOption = () => {
+    modeOptions.forEach( option =>{
+        option.classList.contains(game.gameMode)?
+        option.classList.add('selected') : option.classList.remove('selected')
+    })
 }
 const resetTurns = () => {
     board.classList.remove('o')
