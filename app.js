@@ -9,7 +9,6 @@ const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const message = document.querySelector('.message h1')
 const menu = new Menu( game, gamemodes.local, event => { menuHandler(event)} )
-menu.mountMenu()
 // const botMenu = document.querySelector('#choose-mark')
 // const remoteMenu = document.querySelector('.remote-config')
 // const existingCode = document.querySelector('#existing-code')
@@ -123,17 +122,6 @@ const nextTurn = () => {
             remoteMove()
             break
     }
-<<<<<<< HEAD
-    let winner = checkWin(cells)
-    if(winner !== false){
-        drawLine(winner)
-        board.addEventListener("transitionend", function(event) {
-            showFinalMessage(`${winner.toUpperCase()} ha ganado !`)
-          }, false);
-    }
-    else if(isFinnished(cells))showFinalMessage('Es un empate!')
-    if(!isFinnished(cells))botMove()
-=======
 }
 const botMove = () => {
     if(board.classList.contains(game.facingMark)){
@@ -157,7 +145,6 @@ const remoteMove = async() => {
         makeMove(choosenCell)
     }
     // hacer el fetch a la API del próximo movimiento rival
->>>>>>> gh-pages
 }
 const switchTurns = () => {
     board.classList.toggle('x')
@@ -190,68 +177,17 @@ const setMsg = (text) => {
     message.innerText = msg
 }
 const cleanBoard = () => {
-<<<<<<< HEAD
-    cleanLine()
-    cells.forEach(cell=>{
-        cell.classList.remove('x')
-        cell.classList.remove('o')
-=======
     cells.forEach( cell => {
         cell.classList.remove('x','o')
->>>>>>> gh-pages
     })
     board.classList.remove('h','v','up','down','center','left','right','d-down','d-up')
-}
-const cleanLine = () => {
-    const lineStyles = ['line-h','line-v','up','down','left','rigth','diagonal','diagonal-inv','center','show-line']
-    lineStyles.map((style) =>{
-        board.classList.remove(style)
-    })
 }
 const resetTurns = () => {
     board.classList.remove('o')
     board.classList.add('x')
 }
-<<<<<<< HEAD
-const drawLine = (winner) => {
-    if(cells[0].classList.contains(winner) && cells[1].classList.contains(winner) && cells[2].classList.contains(winner)){
-        board.classList.add('line-h')
-        board.classList.add('up')
-    }
-    if(cells[3].classList.contains(winner) && cells[4].classList.contains(winner) && cells[5].classList.contains(winner)){
-        board.classList.add('line-h')
-        board.classList.add('center')
-    }
-    if(cells[6].classList.contains(winner) && cells[7].classList.contains(winner) && cells[8].classList.contains(winner)){
-        board.classList.add('line-h')
-        board.classList.add('down')
-    }
-    if(cells[0].classList.contains(winner) && cells[3].classList.contains(winner) && cells[6].classList.contains(winner)){
-        board.classList.add('line-v')
-        board.classList.add('left')
-    }
-    if(cells[1].classList.contains(winner) && cells[4].classList.contains(winner) && cells[7].classList.contains(winner)){
-        board.classList.add('line-v')
-        board.classList.add('center')
-    }
-    if(cells[2].classList.contains(winner) && cells[5].classList.contains(winner) && cells[8].classList.contains(winner)){
-        board.classList.add('line-v')
-        board.classList.add('rigth')
-    }
-    if(cells[0].classList.contains(winner) && cells[4].classList.contains(winner) && cells[8].classList.contains(winner)){
-        board.classList.add('line-v')
-        board.classList.add('diagonal')
-    }
-    if(cells[2].classList.contains(winner) && cells[4].classList.contains(winner) && cells[6].classList.contains(winner)){
-        board.classList.add('line-v')
-        board.classList.add('diagonal-inv')
-    }
-    setTimeout(()=>{board.classList.add('show-line')},50)
-}
-=======
 //*************************     Old stuff     *************************
 //*************************     Alteraciones al Tablero     *************************
->>>>>>> gh-pages
 //*************************      Consultas de estados       ************************* 
 const isMyTurn = () => {
     return board.classList.contains(otherMark(nonClientMark))
