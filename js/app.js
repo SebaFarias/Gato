@@ -9,17 +9,10 @@ const cells = board.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
 const message = document.querySelector('.message h1')
 const menu = new Menu( game, gamemodes.local, event => { menuHandler(event)} )
-// const botMenu = document.querySelector('#choose-mark')
-// const remoteMenu = document.querySelector('.remote-config')
-// const existingCode = document.querySelector('#existing-code')
-// const finalMessage = document.querySelector('.final-message')
-// const API_URL = 'http://localhost:8080/'
+
 
 modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
-// botMenu.addEventListener('click', (e) => {handleBotMenu(e)})
-// remoteMenu.addEventListener('click', (e) =>{handleRemoteMenu(e)})
-// finalMessage.addEventListener('click', (e) => {restart(e)})
 /********************************* 
 *       Table of Contents
 *       1- Clicks Handler
@@ -143,10 +136,10 @@ const botMove = () => {
 }
 const remoteMove = async() => {
     if(board.classList.contains(game.facingMark)){
-        const choosenCell = await fetchMove()
+        const board = await fetchMove(game.lastUpdate)
+        const choosenCell = cells[game.checkDifference(board)]
         makeMove(choosenCell)
     }
-    // hacer el fetch a la API del próximo movimiento rival
 }
 const switchTurns = () => {
     board.classList.toggle('x')
@@ -194,114 +187,4 @@ const resetTurns = () => {
     board.classList.remove('o')
     board.classList.add('x')
 }
-//*************************     Old stuff     *************************
-//*************************     Alteraciones al Tablero     *************************
-//*************************      Consultas de estados       ************************* 
-const isMyTurn = () => {
-    return board.classList.contains(otherMark(nonClientMark))
-}
-const isFree = (cell) =>{
-    if(typeof(cell) === 'string'){
-        if(cell !== ' ') return false
-    }
-    else{ 
-        if(cell.classList.contains('x') || cell.classList.contains('o')) return false
-    }
-    return true
-}
-//*************************         Modos de Juego           *************************
-const restart = (e) => {
-    if(e.target.classList.contains('restart-btn')){
-        if(option === gamemodes.local){
-            cleanBoard()
-            resetTurns()
-            gameMode = gamemodes.local
-            matchStarted = false
-            showSelectedMode(`.${gamemodes.local}`)
-            finalMessage.classList.remove('show')
-        }
-        if(option === gamemodes.bot){
-            newBotGame(botMenu.querySelector(`.${nonClientMark === 'x'? 'o': 'x'}`))
-            finalMessage.classList.remove('show')
-        }
-    }
-    setMsg(null)
-    if(!isFinnished(cells))finalMessage.classList.remove('show')
-}
-const newBotGame = (playerMark) => {
-    nonClientMark = playerMark.classList.contains('x')? 'o' : 'x'
-    matchStarted = false
-    gameMode = gamemodes.bot
-    option = gamemodes.bot
-    cleanBoard()
-    resetTurns()
-    botMove()
-    showSelectedMode('.local-bot')
-    setMsg(null)
-    botMenu.classList.remove('show')
-}
-//*************************       Movimientos del Bot        *************************
 
-
-//*************************         Menus y Vistas           *************************
-
-const changeGameMode = (event) => {
-    const selectedOption = event.target.parentElement
-    if(selectedOption.classList.contains('local-2P')){
-        option = gamemodes.local
-        showFinalMessage('¿Comenzar nueva Partida?')
-    }
-    if(selectedOption.classList.contains('local-bot'))botMenu.classList.add('show');
-    if (selectedOption.classList.contains('remote-2P'))remoteMenu.classList.add('show');
-}
-
-const showSelectedMode = (mode) => {
-    modeOptions.forEach(option => {
-        option.querySelector('.indicator').classList.remove('selected')
-    })
-    document.querySelector(mode).querySelector('.indicator').classList.add('selected')
-}
-const handleBotMenu = (event) => {
-    let clicked = event.target 
-    if(clicked.classList.contains('bot-start-btn'))newBotGame(clicked)
-    else if(!isFinnished(cells))botMenu.classList.remove('show')
-}
-const handleRemoteMenu = (event) =>{
-    event.preventDefault()
-    let clicked = event.target
-    if(clicked.classList.contains('new'))createNewMatch()
-    else if(clicked.classList.contains('join'))joinExistingMatch(existingCode.value)
-    else if(clicked.classList.contains('remote-config'))remoteMenu.classList.remove('show')
-}
-const createNewMatch = () => {
-    sendNewMatchReq()
-    console.log('new btn pressed');
-}
-const joinExistingMatch = (code) => {
-    sendJoinReq(code)
-    console.log(`Join btn pressed try: ${code}`);
-} 
-
-const showFinalMessage = (mensaje) => {
-    finalMessage.querySelector('h1').innerText = mensaje
-    finalMessage.classList.add('show')
-}
-//*************************          HTTP Requests           *************************
-const sendNewMatchReq = () => {
-    fetch(API_URL+'/newConnection')
-        .then( res => {
-        return res.json();
-    })
-        .then(data => console.log(data))
-}
-const sendJoinReq = (code) => {
-    fetch(API_URL,{
-        method: 'POST',
-        body: JSON.stringify({
-            code: code
-        }),
-        headers: {
-            'content-type': 'application/json'
-        }        
-    })
-}   
