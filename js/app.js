@@ -1,28 +1,27 @@
-const gamemodes = {
+const mode = {
     local: 'local-2P',
     bot: 'local-bot',
     remote: 'remote-2P',
 }
-const game = new Game(gamemodes.local,false,'o','x','')
-const board = document.querySelector('.board')
-const cells = board.querySelectorAll('.cell')
+const game = new Game(mode.local,false,'o','x','')
+const menu = new Menu( game, mode.local, e => { menuHandler(e)} )
+const board = document.getElementById('board')
+const message = document.getElementById('msg')
+const cells = document.querySelectorAll('.cell')
 const modeOptions = document.querySelectorAll('.option')
-const message = document.querySelector('.message h1')
-const menu = new Menu( game, gamemodes.local, event => { menuHandler(event)} )
 
-
-modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
+modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
 /********************************* 
 *       Table of Contents
-*       1- Clicks Handler
-*       2- Utils
-*       3- Board changes
-*       4- Views
+*       1- Click Handlers
+*       2- Board changes
+*       3- Views
+*       4- Utils
 *********************************/
 /********************************
 *
-*       Clicks Handler
+*       1- Clicks Handlers
 *
 ********************************/
 const boardHandler = event =>{
@@ -40,8 +39,7 @@ const menuHandler = event => {
             break
         case 'restart-btn':
             game.newGame(menu.option,game.facingMark,'')
-            cleanBoard()
-            resetTurns()
+            resetBoard()
             showSelectedOption()
             menu.newMenu()
             switchTurns()
@@ -49,13 +47,18 @@ const menuHandler = event => {
             break
         case 'bot-start-btn':
             const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
-            game.newGame(gamemodes.bot,botMark,'')
-            cleanBoard()
-            resetTurns()
+            game.newGame(mode.bot,botMark,'')
+            resetBoard()
             showSelectedOption()
             menu.newMenu()
             switchTurns()
             nextTurn()
+            break
+        case 'new':
+            event.preventDefault()
+            break
+        case 'join':
+            event.preventDefault()
             break
         default: 
         console.log(event.target.classList[0])
@@ -65,40 +68,23 @@ const optionsHandler = event => {
     const option = event.target.classList.contains('indicator') || event.target.classList.contains('gamemode') ?
         event.target.parentElement : event.target
     switch(option.classList[0]){
-        case gamemodes.local:
-            menu.setOption(gamemodes.local)
+        case mode.local:
+            menu.setOption(mode.local)
             menu.showRestart('¿Comenzar nueva Partida?')
             break
-        case gamemodes.bot:
-            menu.setOption(gamemodes.bot)
+        case mode.bot:
+            menu.setOption(mode.bot)
             menu.showBot()
             break
-        case gamemodes.remote:
-            menu.setOption(gamemodes.remote)
+        case mode.remote:
+            menu.setOption(mode.remote)
             menu.showRemote()
             break
     }
 }
 /********************************
 *
-*       Utils
-*
-********************************/
-const getIndex = cell => {
-    let index 
-    Array.from(cells).map( (square, i) => {
-        if (square === cell) index = i
-    })
-    return index
-}
-const canIPlay = () => {
-    if(game.gameMode !== gamemodes.local && board.classList.contains(game.facingMark)) return false
-    if(game.checkwin() !== false) return false
-    return true
-}
-/********************************
-*
-*       Board changes
+*       2- Board changes
 *
 ********************************/
 const makeMove = (cell) => {
@@ -106,17 +92,6 @@ const makeMove = (cell) => {
     game.updateBoard(game.turn,getIndex(cell))      
     const winner = game.checkwin()
     winner? handleWinner(winner) : nextTurn()
-}
-const nextTurn = () => {
-    switchTurns()
-    switch(game.gameMode){
-        case gamemodes.bot:
-            botMove()
-            break
-        case gamemodes.remote:
-            remoteMove()
-            break
-    }
 }
 const botMove = () => {
     if(board.classList.contains(game.facingMark)){
@@ -136,10 +111,15 @@ const botMove = () => {
 }
 const remoteMove = async() => {
     if(board.classList.contains(game.facingMark)){
-        const board = await fetchMove(game.lastUpdate)
+        const board = await fetchMove(game)
         const choosenCell = cells[game.checkDifference(board)]
         makeMove(choosenCell)
     }
+}
+const nextTurn = () => {
+    switchTurns()
+    if(game.gameMode === mode.bot) botMove()
+    if(game.gameMode === mode.remote) remoteMove()
 }
 const switchTurns = () => {
     board.classList.toggle('x')
@@ -147,35 +127,27 @@ const switchTurns = () => {
     game.switchTurns()
     setMsg(null)    
 }
-const handleWinner = (winner) => {
-    if(winner !== 'draw'){
-        menu.showRestart(`${winner.toLocaleUpperCase()} ha Ganado!`)
-        game.getWinningLine(winner).forEach( className => {
-            board.classList.add(className)
-        })
-    }else{
-        menu.showRestart('Es un empate!')
-        }
-}
 /********************************
 *
-*       Views
+*       3- Views
 *
 ********************************/
 const setMsg = (text) => {
     let msg = text
     if(msg === null){ 
-        msg = game.gameMode === gamemodes.local ? 
+        msg = game.gameMode === mode.local ? 
             `Turno de ${game.turn.toLocaleUpperCase()}` 
             : board.classList.contains(game.facingMark)? 'Turno del rival' : 'Tu turno'
     }
     message.innerText = msg
 }
-const cleanBoard = () => {
-    cells.forEach( cell => {
-        cell.classList.remove('x','o')
-    })
-    board.classList.remove('h','v','up','down','center','left','right','d-down','d-up')
+const handleWinner = (winner) => {
+    if(winner === 'draw'){
+        menu.showRestart('Es un empate!')
+    }else{
+        menu.showRestart(`${winner.toLocaleUpperCase()} ha Ganado!`)
+        board.classList.add(...game.getWinningLine(winner))
+    }    
 }
 const showSelectedOption = () => {
     modeOptions.forEach( option =>{
@@ -183,8 +155,27 @@ const showSelectedOption = () => {
         option.classList.add('selected') : option.classList.remove('selected')
     })
 }
-const resetTurns = () => {
-    board.classList.remove('o')
+const resetBoard = () => {
+    board.classList.remove('o','h','v','up','down','center','left','right','d-down','d-up')
     board.classList.add('x')
+    cells.forEach( cell => {
+        cell.classList.remove('x','o')
+    })
 }
-
+/********************************
+*
+*       4- Utils
+*
+********************************/
+const getIndex = cell => {
+    let index 
+    cells.forEach( (square, i) => {
+        if (square === cell) index = i
+    })
+    return index
+}
+const canIPlay = () => {
+    if(game.gameMode !== mode.local && board.classList.contains(game.facingMark)) return false
+    if(game.checkwin() !== false) return false
+    return true
+}
