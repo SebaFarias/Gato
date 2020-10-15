@@ -5,7 +5,7 @@ const fetchMove = async updatedAt => {
     if( lastUpdate > updatedAt){
         return board
     }else{
-        return setTimeout( ()=>{
+        return setTimeout( async () =>{
             await fetchMove(updatedAt)
         },2000)
     }

@@ -33,7 +33,7 @@ const boardHandler = event =>{
 const menuHandler = event => {
     switch(event.target.classList[0]){
         case 'show': // click on menu's background
-            if(game.checkwin() === false){
+            if(!game.checkwin()){
                 menu.newMenu()
                 menu.setOption(game.getGameMode)
             }

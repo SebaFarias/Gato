@@ -55,6 +55,10 @@ class Menu{
         </form>`
         if(!document.getElementById('menu'))this.mountMenu()
         this.menu.addEventListener('click', (e) => {this.handler(e)} )
+        document.querySelector('.remote-config').addEventListener('submit', event =>{handleSubmit(event)} )
+    }
+    handleSubmit(event){
+        event.preventDefault()
     }
     setFinalMsg(text){
         if(document.getElementById('finalMsg')) document.getElementById('finalMsg').innerText = text
