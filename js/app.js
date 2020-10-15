@@ -3,8 +3,9 @@ const mode = {
     bot: 'local-bot',
     remote: 'remote-2P',
 }
-const game = new Game(mode.local,false,'o','x','')
-const menu = new Menu( game, mode.local, e => { menuHandler(e)} )
+const game = new Game(mode.local,false,'o','x')
+const menu = new Menu( game, mode.local, e => { menuHandler(e)}, e => { submitHandler(e)} )
+const remote = new Remote(menu)
 const board = document.getElementById('board')
 const message = document.getElementById('msg')
 const cells = document.querySelectorAll('.cell')
@@ -53,16 +54,14 @@ const menuHandler = event => {
             menu.newMenu()
             switchTurns()
             nextTurn()
-            break
-        case 'new':
-            event.preventDefault()
-            break
-        case 'join':
-            event.preventDefault()
-            break
-        default: 
+            break        
+        default: // For development propuses only
         console.log(event.target.classList[0])
     }
+}
+const submitHandler = event => {
+    event.preventDefault()
+    console.log(event.target)
 }
 const optionsHandler = event => {
     const option = event.target.classList.contains('indicator') || event.target.classList.contains('gamemode') ?
@@ -139,7 +138,7 @@ const setMsg = (text) => {
             `Turno de ${game.turn.toLocaleUpperCase()}` 
             : board.classList.contains(game.facingMark)? 'Turno del rival' : 'Tu turno'
     }
-    message.innerText = msg
+    message.childNodes[1].innerText = msg
 }
 const handleWinner = (winner) => {
     if(winner === 'draw'){
