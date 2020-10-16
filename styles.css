@@ -232,6 +232,7 @@ nav{
 ********************************/
 #menu{
     position: absolute;
+    overflow: hidden;
     left: 0;
     top: 0;
     width: 100vw;
@@ -301,9 +302,18 @@ nav{
 .existing-match{
     display: flex;
     align-items: center;
+    justify-content: center;
+}
+.new{
+    margin: 1.5rem;
+}
+input,
+button{
+    display: block;
 }
 #existing-code{
     padding: 1.5rem;
+    width: 10rem;
     margin: 1rem;
     border-radius: 1rem;
     border-color: var(--background-color);
@@ -313,7 +323,9 @@ nav{
 }
 #finalMsg,
 #choose-mark h1,
-.remote-config div{
+.remote-config div,
+#conMsg,
+#code{
     text-align: center;
     font-size: 2rem;
     color: var(--background-color);
@@ -331,7 +343,7 @@ nav{
 .loader,
 .loader::before,
 .loader::after{
-    background: var(--primary-color);
+    background: var(--background-color);
     -webkit-animation: load 1s infinite ease-in-out;
     animation: load 1s infinite ease-in-out;
     width: 0.13em;
@@ -340,7 +352,7 @@ nav{
 .loader{
     position: relative;
     margin: 0.5em auto;
-    color: var(--primary-color);
+    color: var(--background-color);
     font-size: var(--cell-size);
     -webkit-animation-delay: -0.16s;
     animation-delay: -0.16s;

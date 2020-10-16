@@ -5,7 +5,7 @@ const mode = {
 }
 const game = new Game(mode.local,false,'o','x')
 const menu = new Menu( game, mode.local, e => { menuHandler(e)}, e => { submitHandler(e)} )
-const remote = new Remote(menu)
+const remote = new Remote(menu , () => {newGame()})
 const board = document.getElementById('board')
 const message = document.getElementById('msg')
 const cells = document.querySelectorAll('.cell')
@@ -13,6 +13,7 @@ const modeOptions = document.querySelectorAll('.option')
 
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
 modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
+window.addEventListener('unload', e => {remote.handleUnload(e)} )
 /********************************* 
 *       Table of Contents
 *       1- Click Handlers
@@ -39,21 +40,12 @@ const menuHandler = event => {
             }
             break
         case 'restart-btn':
-            game.newGame(menu.option,game.facingMark,'')
-            resetBoard()
-            showSelectedOption()
-            menu.newMenu()
-            switchTurns()
-            nextTurn()
+            newGame()
             break
         case 'bot-start-btn':
             const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
-            game.newGame(mode.bot,botMark,'')
-            resetBoard()
-            showSelectedOption()
-            menu.newMenu()
-            switchTurns()
-            nextTurn()
+            game.setFacingMark(botMark)
+            newGame()
             break        
         default: // For development propuses only
         console.log(event.target.classList[0])
@@ -61,7 +53,12 @@ const menuHandler = event => {
 }
 const submitHandler = event => {
     event.preventDefault()
-    console.log(event.target)
+    const clicked = event.submitter
+    if(clicked.classList.contains('new')) remote.newConnection()
+    if(clicked.classList.contains('join')){
+        const code = document.getElementById('existing-code').value
+        remote.joinConnection(code)
+    }    
 }
 const optionsHandler = event => {
     const option = event.target.classList.contains('indicator') || event.target.classList.contains('gamemode') ?
@@ -82,10 +79,18 @@ const optionsHandler = event => {
     }
 }
 /********************************
-*
-*       2- Board changes
-*
-********************************/
+ *
+ *       2- Board changes
+ *
+ ********************************/
+const newGame = () => {
+    game.newGame(menu.option,game.facingMark)
+    resetBoard()
+    showSelectedOption()
+    menu.newMenu()
+    switchTurns()
+    nextTurn()
+}
 const makeMove = (cell) => {
     board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
     game.updateBoard(game.turn,getIndex(cell))      

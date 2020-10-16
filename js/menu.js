@@ -42,42 +42,43 @@ class Menu{
         if(!document.getElementById('menu'))this.mountMenu()
         this.menu.addEventListener('click', (e) => {this.handler(e)} )
     }
-    newRemoteMenu(){
+    newRemoteMenu(message = false){
         this.menu = this.newMenu()
         this.menu.innerHTML =`
             <form id="form" class="remote-config">
-                <button class="new btn">Crear Partida</button>
-                <div id="generated-code">O</div>
                 <div for="match-code">Partida Existente</div>
                 <div class="existing-match">
                     <input name="match-code" id="existing-code" placeholder="Ingrese Codigo"></input>
-                    <button class="join btn">Unirse</button>
+                    <button for="existing-code" class="join btn">Unirse</button>
                 </div>
+                <div id="generated-code">${message?message:'O'}</div>
+                <button class="new btn">Crear Partida</button>
             </form>`
         if(!document.getElementById('menu'))this.mountMenu()
         this.menu.addEventListener('click', this.handler )
         document.getElementById('form').addEventListener('submit', this.onSubmit )
     }
-    newConnectingMenu(msg,code = false){
+    newConnectingMenu(msg,loader,code = false){
         this.menu = this.newMenu()
         this.menu.innerHTML =`
             ${code? `
                 <h1 id="code">${code}</h1>
-                <button id="copyBtn"></button>` 
+                <button id="copyBtn" class="btn"></button>` 
             : ''}
-            <h1 id="ConMsg">${msg}</h1>
-            <div class="loader"></div>`
+            <h1 id="conMsg">${msg}</h1>
+            ${loader? '<div class="loader"></div>':''}`
         if(!document.getElementById('menu'))this.mountMenu()
         this.menu.addEventListener('click', (e) => {this.handler(e)} )
-        document.getElementById('copyBtn').addEventListener('click', () => {this.copyCode()})
+        if(code)document.getElementById('copyBtn').addEventListener('click', () => {this.copyCode()})
     }
-    copyCode(){
+    copyCode(){ //not working
         const code = document.getElementById('code')
         const range = document.createRange();
         range.selectNode(code);
-        window.getSelection().addRange(range);
+        const selection = window.getSelection().addRange(range);
+        console.log(selection,code,range);
         document.execCommand('copy')
-        document.getElementById('ConMsg').innerText('Código copiado en el portapapeles')
+        document.getElementById('conMsg').innerText = 'Código copiado en el portapapeles'
     }
     setFinalMsg(text){
         if(document.getElementById('finalMsg')) document.getElementById('finalMsg').innerText = text
@@ -100,8 +101,12 @@ class Menu{
         this.newBotMenu()
         this.showMenu()
     }
-    showRemote(){
-        this.newRemoteMenu()
+    showRemote(message = false){
+        this.newRemoteMenu(message)
+        this.showMenu()
+    }
+    showConnecting(message,loader,code = false){
+        this.newConnectingMenu(message,loader,code)
         this.showMenu()
     }
 }
