@@ -13,7 +13,7 @@ const modeOptions = document.querySelectorAll('.option')
 
 cells.forEach( cell => { cell.addEventListener('click' , e => {boardHandler(e)})})
 modeOptions.forEach( option => {option.addEventListener('click', e => {optionsHandler(e)})})
-window.addEventListener('unload', e => {remote.handleUnload(e)} )
+window.addEventListener('beforeunload', e => {remote.handleUnload()} )
 /********************************* 
 *       Table of Contents
 *       1- Click Handlers
@@ -29,7 +29,8 @@ window.addEventListener('unload', e => {remote.handleUnload(e)} )
 const boardHandler = event =>{
     const clicked = event.target
     if(clicked.classList.contains('x') || clicked.classList.contains('o')) return
-    if(canIPlay()) makeMove(clicked)
+    if(canIPlay()) return makeMove(clicked)
+    setMsg('Hey! Turno del rival')
 }
 const menuHandler = event => {
     switch(event.target.classList[0]){
@@ -94,7 +95,9 @@ const newGame = () => {
 }
 const makeMove = (cell) => {
     board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
-    game.updateBoard(game.turn,getIndex(cell))      
+    const index = getIndex(cell)
+    game.updateBoard(game.turn,index)  
+    if(game.gameMode === mode.remote) remote.sendMove(index)   
     const winner = game.checkwin()
     winner? handleWinner(winner) : nextTurn()
 }
@@ -114,17 +117,9 @@ const botMove = () => {
         setTimeout(()=>{makeMove(choosenCell)},200)
     }
 }
-const remoteMove = async() => {
-    if(board.classList.contains(game.facingMark)){
-        const board = await fetchMove(game)
-        const choosenCell = cells[game.checkDifference(board)]
-        makeMove(choosenCell)
-    }
-}
 const nextTurn = () => {
     switchTurns()
     if(game.gameMode === mode.bot) botMove()
-    if(game.gameMode === mode.remote) remoteMove()
 }
 const switchTurns = () => {
     board.classList.toggle('x')

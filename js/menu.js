@@ -63,7 +63,7 @@ class Menu{
         this.menu.innerHTML =`
             ${code? `
                 <h1 id="code">${code}</h1>
-                <button id="copyBtn" class="btn"></button>` 
+                <button id="copyBtn" class="copy btn"></button>` 
             : ''}
             <h1 id="conMsg">${msg}</h1>
             ${loader? '<div class="loader"></div>':''}`
@@ -78,7 +78,7 @@ class Menu{
         const selection = window.getSelection().addRange(range);
         console.log(selection,code,range);
         document.execCommand('copy')
-        document.getElementById('conMsg').innerText = 'Código copiado en el portapapeles'
+        // document.getElementById('conMsg').innerText = 'Código copiado en el portapapeles'
     }
     setFinalMsg(text){
         if(document.getElementById('finalMsg')) document.getElementById('finalMsg').innerText = text

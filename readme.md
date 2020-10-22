@@ -9,7 +9,7 @@ Each mark is made by placing a before and an after pseudo element for each cell.
     Connection
     - [X] New Game 
     - [X] Join Existing Game 
-    - [X] Disconnect
+    - [\] Disconnect
 ### Moves
     - [ ] Make a Move 
     - [ ] listen to Moves
