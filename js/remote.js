@@ -6,10 +6,11 @@ MOVES_ROUTE = '/moves',
 MS_TO_REFRESH = 2000
 
 class Remote{
-  constructor(menu, startFunction){
+  constructor(menu, startFunction, moveFunction){
     this.menu = menu
     this.game = menu.game
     this.start = startFunction
+    this.move = moveFunction
     this.code = ''
     this.watingFoe = true
     this.lastUpdate = new Date('1970-01-01Z00:00:00:000')
@@ -22,6 +23,9 @@ class Remote{
   }
   hosting(){
     return this.amIHosting
+  }
+  wating(){
+    return this.watingFoe
   }
   getMyId(){
     return this.playerId
@@ -48,10 +52,10 @@ class Remote{
     this.amIHosting = bool
   }
   startWaiting(){
-    this.watingFoe = false
+    this.watingFoe = true
   }
   stopWaiting(){
-    this.watingFoe = true
+    this.watingFoe = false
   }
   async newConnection(){
     this.menu.showConnecting('Conectando con el servidor ...',true)
@@ -91,19 +95,42 @@ class Remote{
       this.checkStatus(this.fetchStatus())
     },MS_TO_REFRESH)
   }
+  refreshWaiting(guestID){
+    if(guestID === null || typeof guestID === 'undefined'){
+      this.startWaiting() // handle disconnection missing
+    }else{
+      this.stopWaiting()
+    }
+  }
+  refreshHost(hostID,guestID){
+    this.setHosting( hostID === this.getMyId())
+    if(! this.hosting()) return this.setFoeId(hostID)
+    this.setFoeId(guestID !== null && typeof guestID !== 'undefined'? guestID : '')
+  }
+  compareBoard(serverBoard){
+    const board = this.game.board
+    const difference = []
+    serverBoard.map( (cell, index) =>{
+      if(cell !== board[index]) difference.push([index,cell])
+    })
+    if(difference.length > 0){
+      console.log('different');
+      console.log(difference);
+      this.move(difference[0])
+    }
+  }
   checkStatus(res){
     res.then(data => {
-      this.setHosting(data.p1 === this.getMyId())
-      if(this.hosting())this.setFoeId(data.p2 !== null && typeof data.p2 !== 'undefined'? data.p2:'')
-      else this.setFoeId(data.p1 !== null && typeof data.p1 !== 'undefined'? data.p1:'')
-      if(this.watingFoe){
-        if(data.p2 !== null && typeof data.p2 !== 'undefined'){
-          this.stopWaiting()
-          this.menu.setOption('remote-2P')
-          this.hosting() ? this.game.setFacingMark('x') : this.game.setFacingMark('o')
-          this.start()
-        }
+      this.refreshHost(data.p1,data.p2)
+      if(this.wating() && this.getFoeId() !== '' ){
+        this.menu.setOption('remote-2P')
+        this.hosting() ? this.game.setFacingMark('o') : this.game.setFacingMark('x')
+        this.start()
+      }      
+      if(!this.wating()){
+        this.compareBoard(data.board)
       }
+      this.refreshWaiting(data.p2)
     })
   }
 /********************************
@@ -192,7 +219,7 @@ class Remote{
   async cleanBoard(){  
     const response = await fetch(`${API_URL}${MOVES_ROUTE}/restart/${this.getCode()}`)
     .catch( err => {
-      console.log(err)
+      console.log('Server error: ',err)
     })
     return response.json()      
   }
