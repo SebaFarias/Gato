@@ -49,8 +49,8 @@ const menuHandler = event => {
       game.setFacingMark(botMark)
       newGame()
       break        
-    default: // For development propuses only
-    console.log(event.target.classList[0])
+    default: 
+    //console.log(event.target.classList[0])// For development propuses only
   }
 }
 const submitHandler = event => {
@@ -122,7 +122,6 @@ const remoteMove = move => {
   const index = move[0]
   const mark = move[1]
   if(mark === game.facingMark && cells[index].classList.length < 2){
-    console.log('moviendo desde remoto');
     makeMove(cells[index])
   }
 }

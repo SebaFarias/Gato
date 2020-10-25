@@ -220,7 +220,6 @@ class Remote{
     return response.json()        
   }    
   async cleanBoard(){  
-    console.log('asking server to restart...');
     const response = await fetch(`${API_URL}${MOVES_ROUTE}/restart/${this.getCode()}`)
     .catch( err => {
       console.log('Server error: ',err)
