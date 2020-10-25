@@ -107,17 +107,17 @@ class Remote{
     if(! this.hosting()) return this.setFoeId(hostID)
     this.setFoeId(guestID !== null && typeof guestID !== 'undefined'? guestID : '')
   }
-  compareBoard(serverBoard){
+  compareBoard(serverBoard,time){
     const board = this.game.board
-    const difference = []
+    const differences = []
     serverBoard.map( (cell, index) =>{
-      if(cell !== board[index]) difference.push([index,cell])
+      if(cell !== board[index]) differences.push([index,cell])
     })
-    if(difference.length > 0){
-      this.move(difference[0])
-      if(difference[0][1] === '' && board[difference[0][0]] !== this.game.getFacingMark()){
-        this.sendMove(difference[0][0])
-      }
+    if(differences.length > 0){
+      differences.map( difference =>{
+        this.move(difference)
+      })
+      this.setUpdatedAt(time)
     }
   }
   checkStatus(res){
@@ -128,10 +128,12 @@ class Remote{
         this.hosting() ? this.game.setFacingMark('o') : this.game.setFacingMark('x')
         this.start()
       }      
-      if(!this.wating()){
-        this.compareBoard(data.board)
+      if(new Date(data.lastUpdate) > this.getUpdatedAt()){
+        if(!this.wating()){
+          this.compareBoard(data.board,new Date(data.lastUpdate))
+        }
       }
-      this.refreshWaiting(data.p2)
+      this.refreshWaiting(data.p2)      
     })
   }
 /********************************
@@ -218,6 +220,7 @@ class Remote{
     return response.json()        
   }    
   async cleanBoard(){  
+    console.log('asking server to restart...');
     const response = await fetch(`${API_URL}${MOVES_ROUTE}/restart/${this.getCode()}`)
     .catch( err => {
       console.log('Server error: ',err)
