@@ -114,9 +114,10 @@ class Remote{
       if(cell !== board[index]) difference.push([index,cell])
     })
     if(difference.length > 0){
-      console.log('different');
-      console.log(difference);
       this.move(difference[0])
+      if(difference[0][1] === '' && board[difference[0][0]] !== this.game.getFacingMark()){
+        sendMove(difference[0][0])
+      }
     }
   }
   checkStatus(res){
