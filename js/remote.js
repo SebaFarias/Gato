@@ -116,7 +116,7 @@ class Remote{
     if(difference.length > 0){
       this.move(difference[0])
       if(difference[0][1] === '' && board[difference[0][0]] !== this.game.getFacingMark()){
-        sendMove(difference[0][0])
+        this.sendMove(difference[0][0])
       }
     }
   }
