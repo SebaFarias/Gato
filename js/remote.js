@@ -201,7 +201,7 @@ class Remote{
       connectionCode: this.getCode(),
       mark: this.game.otherMark(this.game.facingMark),
       cell: cell,
-      isFinished: this.game.checkwin()? true : false
+      isFinished: !(this.game.checkwin() === false)
   }    
   const response = await fetch(`${API_URL}${MOVES_ROUTE}/move`,{
     method: 'POST',

@@ -97,8 +97,8 @@ const newGame = () => {
 const makeMove = (cell) => {
   board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
   const index = getIndex(cell)
-  if(game.gameMode === mode.remote && !board.classList.contains(game.facingMark)) remote.sendMove(index)   
   game.updateBoard(game.turn,index)  
+  if(game.gameMode === mode.remote && !board.classList.contains(game.facingMark)) remote.sendMove(index)   
   const winner = game.checkwin()
   winner? handleWinner(winner) : nextTurn()
 }
