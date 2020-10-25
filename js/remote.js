@@ -1,6 +1,6 @@
 const CODE_REGEX = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/g,
-API_URL = 'http://127.0.0.1:8080/api/v1', //DEV
-// API_URL = 'https://gato-server.herokuapp.com/api/v1', I3OQ-G67R
+//API_URL = 'http://127.0.0.1:8080/api/v1', //DEV
+API_URL = 'https://gato-server.herokuapp.com/api/v1', 
 CON_ROUTE = '/connection',
 MOVES_ROUTE = '/moves',
 MS_TO_REFRESH = 2000
