@@ -49,6 +49,11 @@ class Game{
     setTurn(turn){
         this.turn = turn
     }
+    syncCell(move){
+      const index = move[0]
+      const mark = move[1]
+      this.board[index] = mark
+    }
     //Utils
     updateBoard(mark,cell){
         if (this.board[cell] !== '') return false

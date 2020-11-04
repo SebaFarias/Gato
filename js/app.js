@@ -124,6 +124,16 @@ const remoteMove = move => {
   if(mark === game.facingMark && cells[index].classList.length < 2){
     makeMove(cells[index])
   }
+  else{
+    remoteSync(move)
+  }
+}
+const remoteSync = move => {
+  const index = move[0]
+  const mark = move[1]
+  cells[index].classList.remove('x','o')
+  if(mark !== '') cells[index].classList.add(mark)
+  game.syncCell(move)
 }
 const nextTurn = () => {
   switchTurns()
