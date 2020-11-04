@@ -113,7 +113,7 @@ class Remote{
     serverBoard.map( (cell, index) =>{
       if(cell !== board[index]) differences.push([index,cell])
     })
-    if(differences.length > 0){
+    if(this.game.checkwin() && differences.length > 0){
       differences.map( difference =>{
         this.move(difference)
       })
