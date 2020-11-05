@@ -1,6 +1,6 @@
 const CODE_REGEX = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/g,
-//API_URL = 'http://127.0.0.1:8080/api/v1', //DEV
-API_URL = 'https://gato-server.herokuapp.com/api/v1', 
+// API_URL = 'http://127.0.0.1:8080/api/v1', //DEV
+API_URL = 'https://gato-server.herokuapp.com/api/v1', //PRODUCTION
 CON_ROUTE = '/connection',
 MOVES_ROUTE = '/moves',
 MS_TO_REFRESH = 2000
@@ -107,15 +107,18 @@ class Remote{
     if(! this.hosting()) return this.setFoeId(hostID)
     this.setFoeId(guestID !== null && typeof guestID !== 'undefined'? guestID : '')
   }
-  compareBoard(serverBoard,time){
+  compareBoard(serverBoard,time,turn){
     const board = this.game.board
     const differences = []
     serverBoard.map( (cell, index) =>{
-      if(cell !== board[index]) differences.push([index,cell])
+      if(cell !== board[index]) differences.push({
+        index: index,
+        mark: cell
+      })
     })
-    if(this.game.checkwin()!== false && differences.length > 0){
+    if(this.game.checkwin() === false && differences.length > 0){
       differences.map( difference =>{
-        this.move(difference)
+        this.move(difference,turn)
       })
       this.setUpdatedAt(time)
     }
@@ -130,7 +133,7 @@ class Remote{
       }      
       if(new Date(data.lastUpdate) > this.getUpdatedAt()){
         if(!this.wating()){
-          this.compareBoard(data.board,new Date(data.lastUpdate))
+          this.compareBoard(data.board,new Date(data.lastUpdate),data.turn)
         }
       }
       this.refreshWaiting(data.p2)      

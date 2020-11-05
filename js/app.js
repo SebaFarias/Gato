@@ -5,7 +5,7 @@ const mode = {
 }
 const game = new Game(mode.local,false,'o','x')
 const menu = new Menu( game, mode.local, e => { menuHandler(e)}, e => { submitHandler(e)} )
-const remote = new Remote(menu , () => {newGame()}, i => {remoteMove(i)})
+const remote = new Remote(menu , () => {newGame()}, (move,turn) => {remoteMove(move,turn)})
 const board = document.getElementById('board')
 const message = document.getElementById('msg')
 const cells = document.querySelectorAll('.cell')
@@ -97,7 +97,7 @@ const newGame = () => {
 const makeMove = (cell) => {
   board.classList.contains('x') ? cell.classList.add('x') : cell.classList.add('o')
   const index = getIndex(cell)
-  game.updateBoard(game.turn,index)  
+  game.updateBoard(index)  
   if(game.gameMode === mode.remote && !board.classList.contains(game.facingMark)) remote.sendMove(index)   
   const winner = game.checkwin()
   winner? handleWinner(winner) : nextTurn()
@@ -118,22 +118,16 @@ const botMove = () => {
     setTimeout(()=>{makeMove(choosenCell)},200)
   }
 }
-const remoteMove = move => {
-  const index = move[0]
-  const mark = move[1]
-  if(mark === game.facingMark && cells[index].classList.length < 2){
-    makeMove(cells[index])
-  }
-  else{
-    remoteSync(move)
-  }
-}
-const remoteSync = move => {
-  const index = move[0]
-  const mark = move[1]
+const remoteMove = (move, turn) => {  
+  const {index , mark} = move
   cells[index].classList.remove('x','o')
   if(mark !== '') cells[index].classList.add(mark)
-  game.syncCell(move)
+  board.classList.remove('x','o')
+  board.classList.add(turn)
+  game.syncCell(move,turn)
+  const winner = game.checkwin()
+  if(winner) handleWinner(winner)
+  setMsg(null)
 }
 const nextTurn = () => {
   switchTurns()
@@ -185,6 +179,10 @@ const resetBoard = () => {
 *       4- Utils
 *
 ********************************/
+const isEmpty = cell => {
+  if(cell.classList.contains('x') || cell.classList.contains('o')) return false
+  return true
+}
 const getIndex = cell => {
   let index 
   cells.forEach( (square, i) => {
