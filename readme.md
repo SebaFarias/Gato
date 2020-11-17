@@ -15,3 +15,8 @@ Each mark is made by placing a before and an after pseudo element for each cell.
     - [ ] listen to Moves
     - [ ] Clean Board
 
+Copy to plipboard
+
+https://www.30secondsofcode.org/blog/s/copy-text-to-clipboard-with-javascript
+https://w3c.github.io/clipboard-apis/#override-copy
+https://stackoverflow.com/questions/13015253/copy-to-clipboard-that-also-works-on-mobile
