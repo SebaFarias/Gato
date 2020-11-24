@@ -20,3 +20,8 @@ Copy to plipboard
 https://www.30secondsofcode.org/blog/s/copy-text-to-clipboard-with-javascript
 https://w3c.github.io/clipboard-apis/#override-copy
 https://stackoverflow.com/questions/13015253/copy-to-clipboard-that-also-works-on-mobile
+
+[ ] actualizar el waiting con res.waiting 
+[ ] Agregar pantalla de espera
+[ ] Agregar reinicio cuando res.waiting === ''
+[ ] quitar el refresh cuando waitig === true

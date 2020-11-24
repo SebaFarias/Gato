@@ -18,7 +18,7 @@
     --font:'Poppins', sans-serif;
 }
 :root{
-    --cell-size: 30vw; /*For Xiaomi's Browser*/
+    --cell-size: 30vw; /*For some mobile browsers*/
     --cell-size: min(20vh,30vw);
     --primary-color: #403C00;
     --transparent-primary-color: #BFB300;

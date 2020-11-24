@@ -1,6 +1,6 @@
 const CODE_REGEX = /^[A-Z0-9]{4}-[A-Z0-9]{4}$/g,
-//API_URL = 'http://localhost:8080/api/v1', //DEV
-API_URL = 'https://gato-server.herokuapp.com/api/v1', //PRODUCTION
+API_URL = 'http://localhost:8080/api/v1', //DEV
+//API_URL = 'https://gato-server.herokuapp.com/api/v1', //PRODUCTION
 CON_ROUTE = '/connection',
 MOVES_ROUTE = '/moves',
 MS_TO_REFRESH = 2000
@@ -12,11 +12,12 @@ class Remote{
     this.start = startFunction
     this.move = moveFunction
     this.code = ''
-    this.watingFoe = true
+    this.waitingFoe = true
     this.lastUpdate = new Date('1970-01-01Z00:00:00:000')
     this.amIHosting = false
     this.playerId = ''
     this.foeId = ''
+    this.interval = null
   }
   getCode(){
     return this.code
@@ -24,8 +25,8 @@ class Remote{
   hosting(){
     return this.amIHosting
   }
-  wating(){
-    return this.watingFoe
+  waiting(){
+    return this.waitingFoe
   }
   getMyId(){
     return this.playerId
@@ -52,10 +53,10 @@ class Remote{
     this.amIHosting = bool
   }
   startWaiting(){
-    this.watingFoe = true
+    this.waitingFoe = true
   }
   stopWaiting(){
-    this.watingFoe = false
+    this.waitingFoe = false
   }
   async newConnection(){
     this.menu.showConnecting('Conectando con el servidor ...',true)
@@ -90,16 +91,21 @@ class Remote{
     if(this.game.gameMode !== 'remote-2P' || this.getCode() === '') return
     this.disconnect()
   }
+  handleNewGame(){
+    this.startWaiting()
+    this.cleanBoard()
+    this.menu.showConnecting('Esperando al servidor ...',true)
+  }
   startListening(){
-    setInterval( () => {
+    this.interval = setInterval( () => {
       this.checkStatus(this.fetchStatus())
     },MS_TO_REFRESH)
   }
-  refreshWaiting(guestID){
-    if(guestID === null || typeof guestID === 'undefined'){
-      this.startWaiting() // handle disconnection missing
-    }else{
+  refreshWaiting(waiting){
+    if(waiting === ''){
       this.stopWaiting()
+    }else{
+      this.startWaiting()
     }
   }
   refreshHost(hostID,guestID){
@@ -126,17 +132,17 @@ class Remote{
   checkStatus(res){
     res.then(data => {
       this.refreshHost(data.p1,data.p2)
-      if(this.wating() && this.getFoeId() !== '' ){
+      if(this.waiting() && data.waiting === '' ){
         this.menu.setOption('remote-2P')
         this.hosting() ? this.game.setFacingMark('o') : this.game.setFacingMark('x')
+        this.refreshWaiting(data.waiting)      
         this.start()
       }      
       if(new Date(data.lastUpdate) > this.getUpdatedAt()){
-        if(!this.wating()){
+        if(!this.waiting()){
           this.compareBoard(data.board,new Date(data.lastUpdate),data.turn)
         }
       }
-      this.refreshWaiting(data.p2)      
     })
   }
 /********************************
@@ -179,7 +185,7 @@ class Remote{
       console.log(err)
     })
     return response
-}
+  }
   async disconnect(){
     const reqBody = {
       connectionCode: this.getCode(),
@@ -223,7 +229,20 @@ class Remote{
     return response.json()        
   }    
   async cleanBoard(){  
-    const response = await fetch(`${API_URL}${MOVES_ROUTE}/restart/${this.getCode()}`)
+    const reqBody = {
+      id: this.getMyId()
+    }
+    const response = await fetch(`${API_URL}${MOVES_ROUTE}/restart/${this.getCode()}`,{
+      method: 'POST',
+      mode:'cors', 
+      cache: 'no-cache',
+      headers: {
+        'Content-type': 'application/json'
+      },
+      redirect: "follow",
+      referrerPolicy: 'no-referrer',
+      body:JSON.stringify(reqBody)
+    })
     .catch( err => {
       console.log('Server error: ',err)
     })

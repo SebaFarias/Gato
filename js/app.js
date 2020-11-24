@@ -5,7 +5,7 @@ const mode = {
 }
 const game = new Game(mode.local,false,'o','x')
 const menu = new Menu( game, mode.local, e => { menuHandler(e)}, e => { submitHandler(e)} )
-const remote = new Remote(menu , () => {newGame()}, (move,turn) => {remoteMove(move,turn)})
+const remote = new Remote(menu , () => newGame(), (move,turn) => {remoteMove(move,turn)})
 const board = document.getElementById('board')
 const message = document.getElementById('msg')
 const cells = document.querySelectorAll('.cell')
@@ -35,23 +35,24 @@ const boardHandler = event =>{
 const menuHandler = event => {
   switch(event.target.classList[0]){
     case 'show': // click on menu's background
-      if(document.getElementById('copyBtn'))return // until copy-code btn working
-      if(!game.checkwin()){
-        menu.newMenu()
-        menu.setOption(game.getGameMode)
-      }
-      break
+    if(document.getElementById('copyBtn'))return // until copy-code btn working
+    if(!game.checkwin()){
+      menu.newMenu()
+      menu.setOption(game.getGameMode)
+    }
+    break
     case 'restart-btn':
+      if(game.gameMode === mode.remote && !remote.waiting() && remote.getFoeId()!== '') return remote.handleNewGame()
       newGame()
       break
-    case 'bot-start-btn':
-      const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
-      game.setFacingMark(botMark)
-      newGame()
-      break        
-    default: 
-    //console.log(event.target.classList[0])// For development propuses only
-  }
+      case 'bot-start-btn':
+        const botMark = event.target.classList[1] === 'x' ? 'o' : 'x' 
+        game.setFacingMark(botMark)
+        newGame()
+        break        
+        default: 
+        //console.log(event.target.classList[0])// For development propuses only
+      }
 }
 const submitHandler = event => {
   event.preventDefault()
@@ -87,7 +88,6 @@ const optionsHandler = event => {
  ********************************/
 const newGame = () => {
   game.newGame(menu.option,game.facingMark)
-  if(game.gameMode === mode.remote && !remote.wating()) remote.cleanBoard()
   resetBoard()
   showSelectedOption()
   menu.newMenu()
